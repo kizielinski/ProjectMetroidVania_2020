@@ -2,9 +2,10 @@
 #
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
+/Library/
 Library/
 Library/Artifacts
-/Library/ArtifactDB
+/Library/ArtifactDB-lock
 /Library/CurrentLayout-default.dwlt
 /Library/SourceAssetDB
 /Library/ScriptAssemblies/Assembly-CSharp.dll
