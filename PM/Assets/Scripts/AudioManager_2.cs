@@ -2,10 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager_2 : MonoBehaviour
 {
-    // TEST COMMENT
-
     // Start is called before the first frame update
     void Start()
     {
