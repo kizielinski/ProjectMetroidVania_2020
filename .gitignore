@@ -3,6 +3,9 @@
 # Get latest from https://github.com/github/gitignore/blob/master/Unity.gitignore
 #
 Library/
+Library/Artifacts
+Library/SourceAssetDB
+Library/ScriptAssemblies
 [Tt]emp/
 obj/
 [Bb]uild/
