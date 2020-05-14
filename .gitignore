@@ -4,9 +4,11 @@
 #
 Library/
 Library/Artifacts
-Library/SourceAssetDB
-Library/ScriptAssemblies
-[Tt]emp/
+/Library/ArtifactDB
+/Library/CurrentLayout-default.dwlt
+/Library/SourceAssetDB
+/Library/ScriptAssemblies/Assembly-CSharp.dll
+Temp/
 obj/
 [Bb]uild/
 [Bb]uilds/
