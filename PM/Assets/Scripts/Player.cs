@@ -11,6 +11,13 @@ public class Player : Object
     public float timer = 0;
 
     // Start is called before the first frame update
+    public Vector2 gravity;
+    public string playerName;
+    public int health;
+
+    public int[] weapon; //[0] = Weapon Type, [1] = Current Rounds, [2] = Current Ammo;
+    //int comboCounter; //Used for hand to hand combat
+
     void Start()
     {
         RectTransform rt = (RectTransform)this.transform;
@@ -58,6 +65,7 @@ public class Player : Object
             onGround = false;
         }
     }
+
     protected override void Move()
     {
         base.Move();
