@@ -15,4 +15,8 @@ public class Entity : Object
     {
         
     }
+    public override void Move()
+    {
+        
+    }
 }

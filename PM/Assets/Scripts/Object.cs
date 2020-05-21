@@ -4,15 +4,22 @@ using UnityEngine;
 
 public class Object : MonoBehaviour
 {
+    [SerializeField]
+    protected float mass;
+
     // Start is called before the first frame update
     void Start()
     {
-        print("Hola");
+
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+    public virtual void Move()
+    {
+
     }
 }
