@@ -10,8 +10,6 @@ public class Player : Object
     public bool onGround = false;
     public float timer = 0;
 
-    // Start is called before the first frame update
-    public Vector2 gravity;
     public string playerName;
     public int health;
 
@@ -35,12 +33,11 @@ public class Player : Object
         {
             ApplyGravity();
         }
-        RaycastHit hit;
         Vector2 bottomLeft= new Vector3(transform.position.x - width / 2, transform.position.y - height / 2);
         Vector2 bottomRight = new Vector3(transform.position.x + width / 2, transform.position.y - height / 2);
         Vector2 topRight = new Vector3(transform.position.x + width / 2, transform.position.y + height / 2);
         Vector2 topLeft = new Vector3(transform.position.x - width / 2, transform.position.y + height / 2);
-        // Down
+        // Ray Casts Pointing downwards
         Debug.DrawLine(bottomLeft, bottomLeft - new Vector2(0, lengthOfRay), Color.red);
         Debug.DrawLine(bottomRight, bottomRight - new Vector2(0, lengthOfRay), Color.red);
         // Up
