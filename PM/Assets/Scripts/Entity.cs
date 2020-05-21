@@ -15,8 +15,8 @@ public class Entity : Object
     {
         
     }
-    public override void Move()
+    protected override void Move()
     {
-        
+        return;
     }
 }
