@@ -13,6 +13,8 @@ using UnityEngine.Audio;
 // Mixer Reference: https://forum.unity.com/threads/changing-audio-mixer-group-volume-with-ui-slider.297884/
 // Mixer Expose Reerence: https://www.raywenderlich.com/532-audio-tutorial-for-unity-the-audio-mixer
 
+// To use Mixer, Expose variable first, give it a name, then change it using SetFloat in script
+
 public class AudioManager_2 : MonoBehaviour
 {
     public AudioMixer masterMixer;
@@ -60,6 +62,7 @@ public class AudioManager_2 : MonoBehaviour
             toggle = false;
         }
 
+        // Add/Remove audio filter effects with addFilter toggle
         if (addFilter == true)
         {
             masterMixer.SetFloat("LowPass", 1000f);
