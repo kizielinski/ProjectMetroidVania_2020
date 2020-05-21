@@ -8,7 +8,6 @@ public class Player : Object
     public float height;
     float lengthOfRay = .01f;
     public bool onGround = false;
-    public float timer = 0;
 
     public string playerName;
     public int health;
@@ -37,28 +36,29 @@ public class Player : Object
         Vector2 bottomRight = new Vector3(transform.position.x + width / 2, transform.position.y - height / 2);
         Vector2 topRight = new Vector3(transform.position.x + width / 2, transform.position.y + height / 2);
         Vector2 topLeft = new Vector3(transform.position.x - width / 2, transform.position.y + height / 2);
-        // Ray Casts Pointing downwards
+        // Debug lines pointing downwards
         Debug.DrawLine(bottomLeft, bottomLeft - new Vector2(0, lengthOfRay), Color.red);
         Debug.DrawLine(bottomRight, bottomRight - new Vector2(0, lengthOfRay), Color.red);
-        // Up
+        // Debug lines pointing Upwards
         Debug.DrawLine(topLeft, topLeft + new Vector2(0, lengthOfRay), Color.red);
         Debug.DrawLine(topRight, topRight + new Vector2(0, lengthOfRay), Color.red);
-        // Left
+        // Debug lines pointing left
         Debug.DrawLine(bottomLeft, bottomLeft - new Vector2(lengthOfRay, 0), Color.red);
         Debug.DrawLine(topLeft, topLeft - new Vector2(lengthOfRay, 0), Color.red);
-        // Right
+        // Debug lines pointing right
         Debug.DrawLine(topRight, topRight + new Vector2(lengthOfRay, 0), Color.red);
         Debug.DrawLine(bottomRight, bottomRight + new Vector2(lengthOfRay, 0), Color.red);
 
+        // Colliding with the ground, stop the player from moving vertically.
         if ((Physics2D.Raycast(bottomLeft, new Vector3(0, -1, 0), lengthOfRay) || Physics2D.Raycast(bottomRight, new Vector3(0, -1, 0), lengthOfRay)) && !onGround)
         {
             onGround = true;
             Debug.Log("hit");
             StopVerticalMotion();
         }
+        // Player is in the air.
         if(!(Physics2D.Raycast(bottomLeft, new Vector3(0, -1, 0), lengthOfRay) && Physics2D.Raycast(bottomRight, new Vector3(0, -1, 0), lengthOfRay)) && onGround)
         {
-            timer = 0;
             onGround = false;
         }
     }
