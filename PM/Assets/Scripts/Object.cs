@@ -30,7 +30,6 @@ public class Object : MonoBehaviour
     {
         velocity += acceleration * Time.deltaTime;
         position += velocity * Time.deltaTime;
-
         transform.position = position;
         transform.rotation = rotation;
 
