@@ -6,10 +6,14 @@ public class Object : MonoBehaviour
 {
     [SerializeField]
     protected float mass;
+    [SerializeField]
     protected Vector2 position;
+    [SerializeField]
     protected Vector2 velocity;
+    [SerializeField]
     protected Vector2 acceleration;
-    protected Quaternion rotation;
+
+    protected float gravity = -5;
 
 
     // Start is called before the first frame update
@@ -21,9 +25,10 @@ public class Object : MonoBehaviour
     }
 
     // Update is called once per frame
-    protected void Update()
+    protected virtual void Update()
     {
         Move();
+        ApplyGravity();
     }
 
     protected virtual void Move()
@@ -31,18 +36,27 @@ public class Object : MonoBehaviour
         velocity += acceleration * Time.deltaTime;
         position += velocity * Time.deltaTime;
         transform.position = position;
-        transform.rotation = rotation;
 
         acceleration = Vector2.zero;
     }
 
-    protected void ApplyForce(Vector2 force)
+    public void ApplyForce(Vector2 force)
     {
         acceleration += force / mass;
     }
 
-    protected void ApplyFriction(float coeff)
+    public void ApplyFriction(float coeff)
     {
         ApplyForce(velocity * -coeff * mass);
+    }
+
+    public void ApplyGravity()
+    {
+        ApplyForce(new Vector2(0, gravity));
+    }
+    protected void StopVerticalMotion()
+    {
+        velocity = new Vector2(velocity.x, 0);
+        acceleration = Vector3.zero;
     }
 }
