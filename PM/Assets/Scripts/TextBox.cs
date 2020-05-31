@@ -46,9 +46,10 @@ public class TextBox : MonoBehaviour
     private void OnGUI()
     {
         var style = GUIStyle.none;
-        style.padding = new RectOffset(10, 50, 10, 10);
+        style.padding = new RectOffset(10, 50, 50, 10);
         style.normal.textColor = Color.black;
         style.fontSize = 24;
+        style.wordWrap = true;
         GUILayout.Label(textDisplayed, style);
     }
 }
