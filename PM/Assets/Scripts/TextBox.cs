@@ -19,6 +19,8 @@ public class TextBox : MonoBehaviour
     int charNumber;             // Number of characters in a string
     bool finished;              // Determines if text has finished typing
 
+    AudioSource source;         // AudioSource for the typing SFX
+
     // Start is called before the first frame update
     void Start()
     {
@@ -27,6 +29,7 @@ public class TextBox : MonoBehaviour
         textDisplayed = "";                             // Set textDisplayed to an empty string to start
         timeStarted = Time.time;                        // Set the timeStarted to the current time
         finished = false;                               // Set finisdhed to false
+        source = GetComponent<AudioSource>();           // Get the AudioSource from the GameObejct
     }
 
     // Update is called once per frame
@@ -35,11 +38,16 @@ public class TextBox : MonoBehaviour
         // Only update text display if text has not finished typing
         if (!finished)
         {
-            var numOfCharsSoFar = (Time.time - timeStarted) / singleKeyDuration;    // Get the number of chars that should be displayed based on time typing started and time to type a char
+            float numOfCharsSoFar = (Time.time - timeStarted) / singleKeyDuration;      // Get the number of chars that should be displayed based on time typing started and time to type a char
+            textDisplayed = textToType.Substring(0, (int)numOfCharsSoFar);              // Update which char is displayed next based on numOfCharsSoFar
 
-            textDisplayed = textToType.Substring(0, (int)numOfCharsSoFar);          // Update which char is displayed next based on numOfCharsSoFar
+            // Only play sound every fourth character
+            if ((int)numOfCharsSoFar % 4 == 0)
+            {
+                source.Play();
+            }
 
-            // The number of characters that has been typed is equal to the number of characters in the text, the text has finished typing
+            // If the number of characters that has been typed is equal to the number of characters in the text, the text has finished typing
             if (charNumber == (int)numOfCharsSoFar)
             {
                 finished = true;

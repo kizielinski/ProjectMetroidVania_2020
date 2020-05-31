@@ -45,7 +45,7 @@ public class AudioManager_2 : MonoBehaviour
         // Check is toggle has just been set to positive
         if (isPlaying == true && toggle == true)
         {
-            // Play the audio that is attacked to the AudioSource Component
+            // Play the audio that is attached to the AudioSource Component
             source.Play();
 
             // Change toggle to false so that new audio isn't playing every frame
