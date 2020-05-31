@@ -10,7 +10,7 @@ using UnityEngine;
 // Reference: https://gamedev.stackexchange.com/questions/138485/how-to-make-a-text-box-where-text-types-smoothly
 public class TextBox : MonoBehaviour
 {
-    public string textToType;   // The text to type onscreen
+    public String textToType;   // The text to type onscreen
     public float timeToType;    // Speed of typing
 
     float singleKeyDuration;    // How long to wait before typing the next character
@@ -24,6 +24,17 @@ public class TextBox : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        // Default values if textToType/timetoType is not imputted correctly
+        if (String.IsNullOrEmpty(textToType))
+        {
+            textToType = "Error: No text has been entered";
+        }
+
+        if (timeToType == 0)
+        {
+            timeToType = 5;
+        }
+
         charNumber = textToType.Length;                 // Get the number of characters in the textToType   
         singleKeyDuration = timeToType / charNumber;    // Calculate how long to wait before typing the next char
         textDisplayed = "";                             // Set textDisplayed to an empty string to start
@@ -41,8 +52,8 @@ public class TextBox : MonoBehaviour
             float numOfCharsSoFar = (Time.time - timeStarted) / singleKeyDuration;      // Get the number of chars that should be displayed based on time typing started and time to type a char
             textDisplayed = textToType.Substring(0, (int)numOfCharsSoFar);              // Update which char is displayed next based on numOfCharsSoFar
 
-            // Only play sound every fourth character
-            if ((int)numOfCharsSoFar % 4 == 0)
+            // Only play sound every time a char is typed
+            if ((int)numOfCharsSoFar % timeToType == 0)
             {
                 source.Play();
             }
