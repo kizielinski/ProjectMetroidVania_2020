@@ -25,8 +25,8 @@ public class TextBox : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        var numOfCharsSoFar = (Time.time - timeStarted) / singleKeyDuration;
-        textDisplayed = textToType.Substring(0, (int)numOfCharsSoFar);
+        var numOfCharsSoFar = (Time.time - timeStarted) / singleKeyDuration; // Get the number of chars that should be displayed based on time typing started and time to type a char
+        textDisplayed = textToType.Substring(0, (int)numOfCharsSoFar); // Update which char is displayed next based on numOfCharsSoFar
     }
 
     /// <summary>
@@ -43,13 +43,14 @@ public class TextBox : MonoBehaviour
         timeStarted = Time.time;
     }
 
+    // Displays text on GUI
     private void OnGUI()
     {
         var style = GUIStyle.none;
         style.padding = new RectOffset(10, 50, 50, 10);
         style.normal.textColor = Color.black;
         style.fontSize = 24;
-        style.wordWrap = true;
+        style.wordWrap = true; // allows for word wrapping
         GUILayout.Label(textDisplayed, style);
     }
 }
