@@ -1,4 +1,9 @@
-﻿using System.Collections;
+﻿/**
+ * @Author - Sean Lynch
+ * InputManager.cs
+ * Date: 05/21/20
+ */
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -17,7 +22,7 @@ public class InputManager : MonoBehaviour
     // Update is called once per frame
     public void Update()
     {
-        if (Input.GetKeyDown(KeyCode.W) && Player.GetComponent<Player>().onGround)
+        if (Input.GetKeyDown(KeyCode.W) && Player.GetComponent<Player>().OnGround)
         {
             Player.GetComponent<Player>().ApplyForce(new Vector2(0, jumpForce));
         }
