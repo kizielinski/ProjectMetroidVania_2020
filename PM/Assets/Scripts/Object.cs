@@ -57,12 +57,27 @@ public class Object : MonoBehaviour
         get { return _height; }
         set { _height = value; }
     }
-    protected float _gravity = -5;
+    private float _maxHorizontalSpeed;
+    public float MaxHorizontalSpeed
+    {
+        get { return _maxHorizontalSpeed; }
+        set { _maxHorizontalSpeed = value; }
+    }
+
+    private float _maxVerticalSpeed;
+    public float MaxVerticalSpeed
+    {
+        get { return _maxVerticalSpeed; }
+        set { _maxVerticalSpeed = value; }
+    }
+    protected float _gravity = -10;
 
 
     // Start is called before the first frame update
     protected void Start()
     {
+        _maxHorizontalSpeed = 7.0f;
+        _maxVerticalSpeed = 7.0f;
         _position = transform.position;
         _velocity = Vector2.zero;
         _acceleration = Vector2.zero;
@@ -81,14 +96,19 @@ public class Object : MonoBehaviour
     // Move object based on it's current accelertion.
     protected virtual void Move()
     {
-        //if(_velocity.magnitude > .4f)
-        //    ApplyFriction(.2f);
-        //else
-        //    _velocity = Vector2.zero;
-
         _velocity += _acceleration * Time.deltaTime;
+        // Going faster than max speed.
+        if(_velocity.x > _maxHorizontalSpeed)
+        {
+            // Clamp velocity.
+            _velocity = new Vector2(_maxHorizontalSpeed, _velocity.y);
+        }
+        if(_velocity.y > _maxVerticalSpeed)
+        {
+            _velocity = new Vector2(_velocity.x, _maxVerticalSpeed);
+        }
         _position += _velocity * Time.deltaTime;
-        transform.position = _position;
+        transform.position = _position; 
 
         _acceleration = Vector2.zero;
     }
@@ -112,11 +132,11 @@ public class Object : MonoBehaviour
     protected void StopVerticalMotion()
     {
         _velocity = new Vector2(_velocity.x, 0);
-        _acceleration = Vector2.zero;
+        _acceleration = new Vector2(_acceleration.x, 0);
     }
     protected void StopHorizontalMotion()
     {
         _velocity = new Vector2(0, _velocity.y);
-        _acceleration = Vector2.zero;
+        _acceleration = new Vector2(0, _acceleration.y);
     }
 }
