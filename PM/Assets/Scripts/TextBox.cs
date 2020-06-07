@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
 // By: Will Bertiz
@@ -8,6 +9,7 @@ using UnityEngine;
 // 5/31/2020
 
 // Reference: https://gamedev.stackexchange.com/questions/138485/how-to-make-a-text-box-where-text-types-smoothly
+// Unity File IO Reference: https://support.unity3d.com/hc/en-us/articles/115000341143-How-do-I-read-and-write-data-from-a-text-file-
 public class TextBox : MonoBehaviour
 {
     public String textToType;   // The text to type onscreen
@@ -18,8 +20,9 @@ public class TextBox : MonoBehaviour
     float timeStarted;          // The time the text has begun to show
     int charNumber;             // Number of characters in a string
     bool finished;              // Determines if text has finished typing
-
     AudioSource source;         // AudioSource for the typing SFX
+
+    const string path = "Assets/Dialouge/";    // String path for location of txt files
 
     // Start is called before the first frame update
     void Start()
@@ -27,7 +30,15 @@ public class TextBox : MonoBehaviour
         // Default values if textToType/timetoType is not imputted correctly
         if (String.IsNullOrEmpty(textToType))
         {
-            textToType = "Error: No text has been entered";
+            //// Open a stream and a BinaryReader to load in the data
+            //Stream inStream = File.OpenRead(path + "test.txt");
+            //BinaryReader reader = new StreamReader(inStream);
+            StreamReader reader = File.OpenText(path + "test.txt");
+
+            textToType = reader.ReadLine();
+
+            // Close the reader and set currentLineCount to 0 to start off the preview
+            reader.Close();
         }
 
         if (timeToType == 0)
@@ -70,7 +81,7 @@ public class TextBox : MonoBehaviour
     private void OnGUI()
     {
         var style = GUIStyle.none;
-        style.padding = new RectOffset(10, 50, 50, 10);
+        style.padding = new RectOffset(10, 50, 50, 100);
         style.normal.textColor = Color.black;
         style.fontSize = 24;
         style.wordWrap = true; // allows for word wrapping
