@@ -7,6 +7,12 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum PlayerState
+{
+    STANDING,
+    MOVING,
+    CROUCHING
+}
 public class Player : Object
 {
 
@@ -37,22 +43,58 @@ public class Player : Object
     }
 
     private float _speedAllowance = .5f;
+    public float SpeedAllowance
+    {
+        get { return _speedAllowance; }
+        set { _speedAllowance = value; }
+    }
     private float _changeInSpeed;
-    private float _rayOffSet = .1f;
+    public float ChangeInSpeed
+    {
+        get { return _changeInSpeed; }
+        set { _changeInSpeed = value; }
+    }
     private bool _leftColliding;
+    public bool LeftColliding
+    {
+        get { return _leftColliding; }
+        set { _leftColliding = value; }
+    }
     private bool _rightColliding;
+    public bool RightColliding
+    {
+        get { return _rightColliding; }
+        set { _rightColliding = value; }
+    }
     private bool _topColliding;
-
-    public float horizontalForce;
-    public float jumpForce;
-
-    public int[] weapon; //[0] = Weapon Type, [1] = Current Rounds, [2] = Current Ammo;
+    public bool TopColliding
+    {
+        get { return _topColliding; }
+        set { _topColliding = value; }
+    }
+    [SerializeField]
+    private PlayerState _playerState;
+    public PlayerState PlayerState
+    {
+        get { return _playerState; }
+        set { _playerState = value; }
+    }
+    private int[] _weapon; //[0] = Weapon Type, [1] = Current Rounds, [2] = Current Ammo;
     //int comboCounter; //Used for hand to hand combat
+    public int[] Weapon
+    {
+        get { return _weapon; }
+        set { _weapon = value; }
+    }
 
+    private InputManager _inputManager;
+    private float _rayOffSet = .1f;
 
     public void Start()
     {
         base.Start();
+        _inputManager = GameObject.Find("GameManager").GetComponent<InputManager>();
+        _playerState = PlayerState.STANDING;
     }
 
     // Update is called once per frame
@@ -63,9 +105,14 @@ public class Player : Object
 
         // Determine right off the bat whether or not the player should be moving.
         IsMoving = (Velocity.magnitude - _speedAllowance > 0 || !OnGround) ? true : false;
+        if (IsMoving && _playerState != PlayerState.CROUCHING)
+            _playerState = PlayerState.MOVING;
+        else if (_playerState != PlayerState.CROUCHING)
+            _playerState = PlayerState.STANDING;
+
 
         // Detect input and alter the players acceleration accordingly.
-        bool keyIsBeingPressed = DetectInput();
+        bool keyIsBeingPressed = _inputManager.DetectInput();
 
         // Player is not on the ground, so apply gravity.
         if (!_onGround)
@@ -154,30 +201,24 @@ public class Player : Object
             {
                 _rightColliding = false;
             }
+            // Colliding with a wal to the right of the player.
+            if (Physics2D.Raycast(topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay) || Physics2D.Raycast(topRight - new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay))
+            {
+                if (!_topColliding)
+                {
+                    _topColliding = true;
+                    StopVerticalMotion();
+                }
+            }
+            else
+            {
+                _topColliding = false;
+            }
             // Player is in the air.
             if (!Physics2D.Raycast(bottomLeft + new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay) && !Physics2D.Raycast(bottomRight - new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay) && _onGround)
             {
                 _onGround = false;
             }
-        }
-        return false;
-    }
-    public bool DetectInput()
-    {
-        if (Input.GetKeyDown(KeyCode.W) && OnGround)
-        {
-            ApplyForce(new Vector2(0, jumpForce));
-            return true;
-        }
-        if (Input.GetKey(KeyCode.A) && !_leftColliding)
-        {
-            ApplyForce(new Vector2(-horizontalForce, 0));
-            return true;
-        }
-        if (Input.GetKey(KeyCode.D) && !_rightColliding)
-        {
-            ApplyForce(new Vector2(horizontalForce, 0));
-            return true;
         }
         return false;
     }
