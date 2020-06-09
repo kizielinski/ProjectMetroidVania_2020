@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 // By: Will Bertiz
 // Displays text in a scene by typing it all out one character at a time
@@ -26,6 +27,7 @@ public class TextBox : MonoBehaviour
     // Start is called before the first frame update
     private void Start()
     {
+        textDisplay.text = "";
         typingCoroutine = Type();
         source = GetComponent<AudioSource>();
         finished = false;
