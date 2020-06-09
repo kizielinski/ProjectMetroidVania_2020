@@ -29,7 +29,7 @@ public class TextBox : MonoBehaviour
         typingCoroutine = Type();
         source = GetComponent<AudioSource>();
         finished = false;
-        StartCoroutine(typingCoroutine);
+        StartCoroutine(Type());
     }
 
     /// <summary>
@@ -41,17 +41,22 @@ public class TextBox : MonoBehaviour
         // Loop through each character in the current sentence being shwon
         foreach (char letter in dialogue[index].ToCharArray())
         {
-            // Add a letter to the textMeshPro object
-            textDisplay.text += letter;
-
-            // Set finished to true if the dialouge has finished typing
-            if (dialogue[index] == textDisplay.text)
+            // If the text has not finished typing, continue with typing logic. Otherwise, text will not type
+            // This is done to prevent threading issues when spamming the continue button
+            if (!finished)
             {
-                finished = true;
-            }
+                // Add a letter to the textMeshPro object
+                textDisplay.text += letter;
 
-            // Play a typing sound effect on each type
-            source.Play();
+                // Set finished to true if the dialouge has finished typing
+                if (dialogue[index] == textDisplay.text)
+                {
+                    finished = true;
+                }
+
+                // Play a typing sound effect on each type
+                source.Play();
+            }
 
             // Yield return to wait before typing out the next letter in the sentence
             yield return new WaitForSeconds(typingSpeed);
@@ -70,15 +75,14 @@ public class TextBox : MonoBehaviour
                 finished = false;           // Set finished to false
                 index++;                    // Increment index to go to the next sentence
                 textDisplay.text = "";      // Reset the text display to blank text
-                StartCoroutine(typingCoroutine);     // Start Typing again
+                StartCoroutine(Type());     // Start Typing again
             }
         }
-        // If the current sentence is not finished, display the complete text
+        // If the current sentence is not finished, display the complete text and set finished to true
         else
         {
             textDisplay.text = dialogue[index];
             finished = true;
-            StopCoroutine(typingCoroutine);
         }
     }
 }
