@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using UnityEngine;
 
 // By: Will Bertiz
@@ -9,82 +10,75 @@ using UnityEngine;
 // 5/31/2020
 
 // Reference: https://gamedev.stackexchange.com/questions/138485/how-to-make-a-text-box-where-text-types-smoothly
+// Reference: https://www.youtube.com/watch?v=f-oSXg6_AMQ
 // Unity File IO Reference: https://support.unity3d.com/hc/en-us/articles/115000341143-How-do-I-read-and-write-data-from-a-text-file-
 public class TextBox : MonoBehaviour
 {
-    public String textToType;   // The text to type onscreen
-    public float timeToType;    // Speed of typing
+    public TextMeshProUGUI textDisplay;      // TextMeshPro object to display text
+    public string[] dialogue;                // Array of dialouge that will be shown to the player
+    public float typingSpeed;                // Speed of typing
+    private int index;                       // Index of current sentece that is being displayed
+    private bool finished;                   // Determines if text has finished typing
+    private AudioSource source;              // AudioSource for the typing SFX
+    private IEnumerator typingCoroutine;
 
-    float singleKeyDuration;    // How long to wait before typing the next character
-    string textDisplayed;       // The text that is currently being shown to the player
-    float timeStarted;          // The time the text has begun to show
-    int charNumber;             // Number of characters in a string
-    bool finished;              // Determines if text has finished typing
-    AudioSource source;         // AudioSource for the typing SFX
-
-    const string path = "Assets/Dialouge/";    // String path for location of txt files
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        // Default values if textToType/timetoType is not imputted correctly
-        if (String.IsNullOrEmpty(textToType))
-        {
-            //// Open a stream and a BinaryReader to load in the data
-            //Stream inStream = File.OpenRead(path + "test.txt");
-            //BinaryReader reader = new StreamReader(inStream);
-            StreamReader reader = File.OpenText(path + "test.txt");
-
-            textToType = reader.ReadLine();
-
-            // Close the reader and set currentLineCount to 0 to start off the preview
-            reader.Close();
-        }
-
-        if (timeToType == 0)
-        {
-            timeToType = 5;
-        }
-
-        charNumber = textToType.Length;                 // Get the number of characters in the textToType   
-        singleKeyDuration = timeToType / charNumber;    // Calculate how long to wait before typing the next char
-        textDisplayed = "";                             // Set textDisplayed to an empty string to start
-        timeStarted = Time.time;                        // Set the timeStarted to the current time
-        finished = false;                               // Set finisdhed to false
-        source = GetComponent<AudioSource>();           // Get the AudioSource from the GameObejct
+        typingCoroutine = Type();
+        source = GetComponent<AudioSource>();
+        finished = false;
+        StartCoroutine(typingCoroutine);
     }
 
-    // Update is called once per frame
-    void Update()
+    /// <summary>
+    ///  Types out a sentence to a TextMeshPro object in the scene
+    /// </summary>
+    /// <returns></returns>
+    private IEnumerator Type()
     {
-        // Only update text display if text has not finished typing
-        if (!finished)
+        // Loop through each character in the current sentence being shwon
+        foreach (char letter in dialogue[index].ToCharArray())
         {
-            float numOfCharsSoFar = (Time.time - timeStarted) / singleKeyDuration;      // Get the number of chars that should be displayed based on time typing started and time to type a char
-            textDisplayed = textToType.Substring(0, (int)numOfCharsSoFar);              // Update which char is displayed next based on numOfCharsSoFar
+            // Add a letter to the textMeshPro object
+            textDisplay.text += letter;
 
-            // Only play sound every time a char is typed
-            if ((int)numOfCharsSoFar % timeToType == 0)
-            {
-                source.Play();
-            }
-
-            // If the number of characters that has been typed is equal to the number of characters in the text, the text has finished typing
-            if (charNumber == (int)numOfCharsSoFar)
+            // Set finished to true if the dialouge has finished typing
+            if (dialogue[index] == textDisplay.text)
             {
                 finished = true;
             }
+
+            // Play a typing sound effect on each type
+            source.Play();
+
+            // Yield return to wait before typing out the next letter in the sentence
+            yield return new WaitForSeconds(typingSpeed);
         }
     }
 
-    // Displays text on GUI
-    private void OnGUI()
+    // Starts the next sentence in the dialogue array
+    public void NextSentence()
     {
-        var style = GUIStyle.none;
-        style.padding = new RectOffset(10, 50, 50, 100);
-        style.normal.textColor = Color.black;
-        style.fontSize = 24;
-        style.wordWrap = true; // allows for word wrapping
-        GUILayout.Label(textDisplayed, style);
+        // If the current sentence has finished typing, continue on to the next sentence
+        if (finished)
+        {
+            // Check to make sure that there is still dialouge to type
+            if (index < dialogue.Length - 1)
+            {
+                finished = false;           // Set finished to false
+                index++;                    // Increment index to go to the next sentence
+                textDisplay.text = "";      // Reset the text display to blank text
+                StartCoroutine(typingCoroutine);     // Start Typing again
+            }
+        }
+        // If the current sentence is not finished, display the complete text
+        else
+        {
+            textDisplay.text = dialogue[index];
+            finished = true;
+            StopCoroutine(typingCoroutine);
+        }
     }
 }
