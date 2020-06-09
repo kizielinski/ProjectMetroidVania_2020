@@ -57,27 +57,27 @@ public class Object : MonoBehaviour
         get { return _height; }
         set { _height = value; }
     }
+    [SerializeField]
     private float _maxHorizontalSpeed;
     public float MaxHorizontalSpeed
     {
         get { return _maxHorizontalSpeed; }
         set { _maxHorizontalSpeed = value; }
     }
-
+    [SerializeField]
     private float _maxVerticalSpeed;
     public float MaxVerticalSpeed
     {
         get { return _maxVerticalSpeed; }
         set { _maxVerticalSpeed = value; }
     }
-    protected float _gravity = -10;
+    [SerializeField]
+    protected float _gravity = -15;
 
 
     // Start is called before the first frame update
     protected void Start()
     {
-        _maxHorizontalSpeed = 7.0f;
-        _maxVerticalSpeed = 7.0f;
         _position = transform.position;
         _velocity = Vector2.zero;
         _acceleration = Vector2.zero;
