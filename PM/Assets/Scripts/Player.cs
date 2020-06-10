@@ -122,7 +122,12 @@ public class Player : Object
         // Player is on the ground AND moving so apply a frictional force.
         if(_onGround && IsMoving && !keyIsBeingPressed)
         {
-            ApplyFriction(2f);
+            float coeff = 3;
+            if(_playerState == PlayerState.CROUCHING)
+            {
+                coeff *= 2;
+            }
+            ApplyFriction(coeff);
         }
 
         // Calculate the change in speed between last frame and this frame after all forces are considered.
