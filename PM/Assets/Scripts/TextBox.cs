@@ -8,6 +8,7 @@ using UnityEngine.UI;
 
 // By: Will Bertiz
 // Displays text in a scene by typing it all out one character at a time
+// Gets dialogue data from a .dialogue file and loads it into a dialogue array for display
 // 5/31/2020
 
 // Reference: https://gamedev.stackexchange.com/questions/138485/how-to-make-a-text-box-where-text-types-smoothly
@@ -21,7 +22,9 @@ public class TextBox : MonoBehaviour
     private int index;                       // Index of current sentece that is being displayed
     private bool finished;                   // Determines if text has finished typing
     private AudioSource source;              // AudioSource for the typing SFX
-    private IEnumerator typingCoroutine;
+    private IEnumerator typingCoroutine;     // IEnumerator to track the typing coroutine
+
+    private const string path = "Assets/Dialouge/";
 
 
     // Start is called before the first frame update
@@ -65,7 +68,17 @@ public class TextBox : MonoBehaviour
         }
     }
 
-    // Starts the next sentence in the dialogue array
+    /// <summary>
+    /// Loads in data from a .txt file
+    /// </summary>
+    private void LoadDataFromFile()
+    {
+
+    }
+
+    /// <summary>
+    /// Starts the next sectence in the dialouge array
+    /// </summary>
     public void NextSentence()
     {
         // If the current sentence has finished typing, continue on to the next sentence
@@ -87,4 +100,5 @@ public class TextBox : MonoBehaviour
             finished = true;
         }
     }
+
 }
