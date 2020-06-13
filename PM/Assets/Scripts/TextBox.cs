@@ -17,23 +17,28 @@ using UnityEngine.UI;
 public class TextBox : MonoBehaviour
 {
     public TextMeshProUGUI textDisplay;      // TextMeshPro object to display text
-    public string[] dialogue;                // Array of dialouge that will be shown to the player
-    public float typingSpeed;                // Speed of typing
+    public TextAsset textFile;               // The text file to use for dialouge
+    public List<string> dialogue;            // Array of dialouge that will be shown to the player
+    public float typingSpeed;                // Speed of 
     private int index;                       // Index of current sentece that is being displayed
     private bool finished;                   // Determines if text has finished typing
     private AudioSource source;              // AudioSource for the typing SFX
     private IEnumerator typingCoroutine;     // IEnumerator to track the typing coroutine
 
-    private const string path = "Assets/Dialouge/";
-
-
     // Start is called before the first frame update
     private void Start()
     {
+        // Initialize values
+        dialogue = new List<string>();
         textDisplay.text = "";
         typingCoroutine = Type();
         source = GetComponent<AudioSource>();
         finished = false;
+
+        // Load text file data from a test file
+        LoadDataFromFile();
+
+        // Start the typing coroutuine
         StartCoroutine(Type());
     }
 
@@ -73,7 +78,29 @@ public class TextBox : MonoBehaviour
     /// </summary>
     private void LoadDataFromFile()
     {
+        // Create a StringReader to read data from the text file
+        StringReader reader = new StringReader(textFile.text);
 
+        string line;    // A single line in the string data (line - text before/after a line break)
+
+        // Create a loop to read all the lines in the txt file
+        while (true)
+        {
+            // Read a single line from the reader
+            line = reader.ReadLine();
+
+            // Check if the string from line is empty or not
+            if (!(String.IsNullOrEmpty(line)))
+            {
+                // If there is data in the line, add it to the dialouge list
+                dialogue.Add(line);
+            }
+            else
+            {
+                // Otherwise, break out of the loop
+                break;
+            }
+        }
     }
 
     /// <summary>
@@ -85,12 +112,17 @@ public class TextBox : MonoBehaviour
         if (finished)
         {
             // Check to make sure that there is still dialouge to type
-            if (index < dialogue.Length - 1)
+            if (index < dialogue.Count - 1)
             {
                 finished = false;           // Set finished to false
                 index++;                    // Increment index to go to the next sentence
                 textDisplay.text = "";      // Reset the text display to blank text
                 StartCoroutine(Type());     // Start Typing again
+            }
+            else
+            {
+                finished = true;
+                textDisplay.text = "";
             }
         }
         // If the current sentence is not finished, display the complete text and set finished to true
@@ -100,5 +132,4 @@ public class TextBox : MonoBehaviour
             finished = true;
         }
     }
-
 }
