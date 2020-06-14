@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 2951075227479792614}
   - component: {fileID: 2951075227944947871}
   m_Layer: 0
-  m_Name: Player 1
+  m_Name: Player
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -219,7 +219,7 @@ MonoBehaviour:
   _width: 0
   _height: 0
   _maxHorizontalSpeed: 6
-  _maxVerticalSpeed: 10
+  _maxVerticalSpeed: 6
   _gravity: -15
   _onGround: 0
   _playerState: 0

@@ -11,7 +11,8 @@ public enum PlayerState
 {
     STANDING,
     MOVING,
-    CROUCHING
+    CROUCHING,
+    DASHING
 }
 public class Player : Object
 {
@@ -87,6 +88,30 @@ public class Player : Object
         set { _weapon = value; }
     }
 
+    private Vector2 _bottomLeft;
+    public Vector2 BottomLeft
+    {
+        get { return _bottomLeft; }
+        set { _bottomLeft = value; }
+    }
+    private Vector2 _topLeft;
+    public Vector2 TopLeft
+    {
+        get { return _topLeft; }
+        set { _topLeft = value; }
+    }
+    private Vector2 _bottomRight;
+    public Vector2 BottomRight
+    {
+        get { return _bottomRight; }
+        set { _bottomRight = value; }
+    }
+    private Vector2 _topRight;
+    public Vector2 TopRight
+    {
+        get { return _topRight; }
+        set { _topRight = value; }
+    }
     private InputManager _inputManager;
     private float _rayOffSet = .1f;
 
@@ -105,7 +130,7 @@ public class Player : Object
 
         // Determine right off the bat whether or not the player should be moving.
         IsMoving = (Velocity.magnitude - _speedAllowance > 0 || !OnGround) ? true : false;
-        if (IsMoving && _playerState != PlayerState.CROUCHING)
+        if (IsMoving && _playerState != PlayerState.CROUCHING && _playerState != PlayerState.DASHING)
             _playerState = PlayerState.MOVING;
         else if (_playerState != PlayerState.CROUCHING)
             _playerState = PlayerState.STANDING;
@@ -153,36 +178,36 @@ public class Player : Object
     public bool DetectCollisions()
     {
         // Position of the four corners of the sprite...
-        Vector2 bottomLeft = new Vector3(transform.position.x - _width / 2, transform.position.y - _height / 2);
-        Vector2 bottomRight = new Vector3(transform.position.x + _width / 2, transform.position.y - _height / 2);
-        Vector2 topRight = new Vector3(transform.position.x + _width / 2, transform.position.y + _height / 2);
-        Vector2 topLeft = new Vector3(transform.position.x - _width / 2, transform.position.y + _height / 2);
+        _bottomLeft = new Vector3(transform.position.x - _width / 2, transform.position.y - _height / 2);
+        _bottomRight = new Vector3(transform.position.x + _width / 2, transform.position.y - _height / 2);
+        _topRight = new Vector3(transform.position.x + _width / 2, transform.position.y + _height / 2);
+        _topLeft = new Vector3(transform.position.x - _width / 2, transform.position.y + _height / 2);
 
 
         // Debug lines pointing downwards representing collision detection
-        Debug.DrawLine(bottomLeft, bottomLeft - new Vector2(0, _lengthOfRay), Color.red);
-        Debug.DrawLine(bottomRight, bottomRight - new Vector2(0, _lengthOfRay), Color.red);
+        Debug.DrawLine(_bottomLeft, _bottomLeft - new Vector2(0, _lengthOfRay), Color.red);
+        Debug.DrawLine(_bottomRight, _bottomRight - new Vector2(0, _lengthOfRay), Color.red);
         // Debug lines pointing Upwards representing collision detection
-        Debug.DrawLine(topLeft, topLeft + new Vector2(0, _lengthOfRay), Color.red);
-        Debug.DrawLine(topRight, topRight + new Vector2(0, _lengthOfRay), Color.red);
+        Debug.DrawLine(_topLeft, _topLeft + new Vector2(0, _lengthOfRay), Color.red);
+        Debug.DrawLine(_topRight, _topRight + new Vector2(0, _lengthOfRay), Color.red);
         // Debug lines pointing left representing collision detection
-        Debug.DrawLine(bottomLeft, bottomLeft - new Vector2(_lengthOfRay, 0), Color.red);
-        Debug.DrawLine(topLeft, topLeft - new Vector2(_lengthOfRay, 0), Color.red);
+        Debug.DrawLine(_bottomLeft, _bottomLeft - new Vector2(_lengthOfRay, 0), Color.red);
+        Debug.DrawLine(_topLeft, _topLeft - new Vector2(_lengthOfRay, 0), Color.red);
         // Debug lines pointing right representing collision detection
-        Debug.DrawLine(topRight, topRight + new Vector2(_lengthOfRay, 0), Color.red);
-        Debug.DrawLine(bottomRight, bottomRight + new Vector2(_lengthOfRay, 0), Color.red);
+        Debug.DrawLine(_topRight, _topRight + new Vector2(_lengthOfRay, 0), Color.red);
+        Debug.DrawLine(_bottomRight, _bottomRight + new Vector2(_lengthOfRay, 0), Color.red);
 
         // Only check collisions when the player is moving.
         if (_isMoving)
         {
             // Colliding with the ground, stop the player from moving vertically.
-            if (!_onGround && (Physics2D.Raycast(bottomLeft + new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay) || Physics2D.Raycast(bottomRight - new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay)) && !_onGround)
+            if (!_onGround && (Physics2D.Raycast(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay) || Physics2D.Raycast(_bottomRight - new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay)) && !_onGround)
             {
                 _onGround = true;
                 StopVerticalMotion();
             }
             // Colliding with a wall to the left of the player.
-            if(Physics2D.Raycast(topLeft - new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay) || Physics2D.Raycast(bottomLeft + new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay)){
+            if(Physics2D.Raycast(_topLeft - new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay) || Physics2D.Raycast(_bottomLeft + new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay)){
                 if (!_leftColliding)
                 {
                     _leftColliding = true;
@@ -194,7 +219,7 @@ public class Player : Object
                 _leftColliding = false;
             }
             // Colliding with a wal to the right of the player.
-            if(Physics2D.Raycast(topRight - new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay) || Physics2D.Raycast(bottomRight + new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay))
+            if(Physics2D.Raycast(_topRight - new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay) || Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay))
             {
                 if (!_rightColliding)
                 {
@@ -207,7 +232,7 @@ public class Player : Object
                 _rightColliding = false;
             }
             // Colliding with a wal to the right of the player.
-            if (Physics2D.Raycast(topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay) || Physics2D.Raycast(topRight - new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay))
+            if (Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay) || Physics2D.Raycast(_topRight - new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay))
             {
                 if (!_topColliding)
                 {
@@ -220,7 +245,7 @@ public class Player : Object
                 _topColliding = false;
             }
             // Player is in the air.
-            if (!Physics2D.Raycast(bottomLeft + new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay) && !Physics2D.Raycast(bottomRight - new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay) && _onGround)
+            if (!Physics2D.Raycast(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay) && !Physics2D.Raycast(_bottomRight - new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay) && _onGround)
             {
                 _onGround = false;
             }
