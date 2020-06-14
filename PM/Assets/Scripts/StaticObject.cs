@@ -10,53 +10,52 @@ using UnityEngine;
 public abstract class StaticObject : Object
 {
     #region FIELDS AND VARIABLES
-    public Player player;
+    [SerializeField]
+    private GameObject player;
+    private Player playerScript;
 
-    private Vector2 _bottomLeft;
-    public Vector2 BottomLeft
+    public float minX;
+    public float MinX
     {
-        get { return _bottomLeft; }
-        set { _bottomLeft = value; }
+        get { return minX; }
+        set { minX = value; }
     }
 
-    private Vector2 _topLeft;
-    public Vector2 TopLeft
+    public float maxX;
+    public float MaxX
     {
-        get { return _topLeft; }
-        set { _topLeft = value; }
+        get { return maxX; }
+        set { maxX = value; }
     }
 
-    private Vector2 _bottomRight;
-    public Vector2 BottomRight
+    public float minY;
+    public float MinY
     {
-        get { return _bottomRight; }
-        set { _bottomRight = value; }
+        get { return minY; }
+        set { minY = value; }
     }
 
-    private Vector2 _topRight;
-    public Vector2 TopRight
+    public float maxY;
+    public float MaxY
     {
-        get { return _topRight; }
-        set { _topRight = value; }
+        get { return maxY; }
+        set { maxY = value; }
     }
     #endregion
 
     // Start is called before the first frame update
-    void Start()
+    protected virtual void Start()
     {
-        // Position of the four corners of the sprite...
-        // Note: Borrowed from Sean's Player.cs script
-        _bottomLeft = new Vector2(transform.position.x - _width / 2, transform.position.y - _height / 2);
-        _bottomRight = new Vector2(transform.position.x + _width / 2, transform.position.y - _height / 2);
-        _topRight = new Vector2(transform.position.x + _width / 2, transform.position.y + _height / 2);
-        _topLeft = new Vector2(transform.position.x - _width / 2, transform.position.y + _height / 2);
+        base.Start();
 
-    }
+        // Initial values of the static object
+        minX = transform.position.x;
+        minY = transform.position.y;
+        maxX = minX + _width;
+        maxY = minY + _height;
 
-    // Update is called once per frame
-    void Update()
-    {
-
+        // Get the player script
+        playerScript = player.GetComponent<Player>();
     }
 
     protected override void Move()
@@ -70,11 +69,11 @@ public abstract class StaticObject : Object
     /// <returns> Bool depending on if the player is within range of this object </returns>
     public bool DetectPlayer()
     {
-        // Use square collision to check if the player is within range
-        if (_topLeft.x < player.TopRight.x &&
-            _topRight.x > player.TopLeft.x &&
-            _bottomLeft.y < player.BottomRight.y &&
-            _bottomRight.y > player.BottomLeft.y)
+        // Use AABB collision to check if the player is within range
+        if (minX < playerScript.maxX &&
+            maxX > playerScript.minX &&
+            maxY > playerScript.minY &&
+            minY < playerScript.maxY)
         {
             // Return true if the player is within range
             return true;

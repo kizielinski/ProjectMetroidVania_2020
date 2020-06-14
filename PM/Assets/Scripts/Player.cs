@@ -112,6 +112,39 @@ public class Player : Object
         get { return _topRight; }
         set { _topRight = value; }
     }
+
+    // WilliamBertiz
+    // Four float fields for minX, maxX, minY, maxY for collisions
+    // 6/14/2020
+
+    public float minX;
+    public float MinX
+    {
+        get { return minX; }
+        set { minX = value; }
+    }
+
+    public float maxX;
+    public float MaxX
+    {
+        get { return maxX; }
+        set { maxX = value; }
+    }
+
+    public float minY;
+    public float MinY
+    {
+        get { return minY; }
+        set { minY = value; }
+    }
+
+    public float maxY;
+    public float MaxY
+    {
+        get { return maxY; }
+        set { maxY = value; }
+    }
+
     private InputManager _inputManager;
     private float _rayOffSet = .1f;
 
@@ -120,11 +153,31 @@ public class Player : Object
         base.Start();
         _inputManager = GameObject.Find("GameManager").GetComponent<InputManager>();
         _playerState = PlayerState.STANDING;
+
+        // Will Bertiz
+        // Initial bounds of the player
+        minX = transform.position.x;
+        minY = transform.position.y;
+        maxX = minX + _width;
+        maxY = minY + _height;
     }
 
     // Update is called once per frame
     protected override void Update()
     {
+        // Will Bertiz
+        // Update the bounds of the player
+        minX = transform.position.x;
+        minY = transform.position.y;
+        maxX = minX + _width;
+        maxY = minY + _height;
+
+        // Position of the four corners of the sprite...
+        _bottomLeft = new Vector3(transform.position.x - _width / 2, transform.position.y - _height / 2);
+        _bottomRight = new Vector3(transform.position.x + _width / 2, transform.position.y - _height / 2);
+        _topRight = new Vector3(transform.position.x + _width / 2, transform.position.y + _height / 2);
+        _topLeft = new Vector3(transform.position.x - _width / 2, transform.position.y + _height / 2);
+
         // The previous frames speed.
         float previousSpeed = this.Velocity.magnitude;
 

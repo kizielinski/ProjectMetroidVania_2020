@@ -20,7 +20,9 @@ public class Dialogue : MonoBehaviour
     public TextAsset textFile;               // The text file to use for dialouge
     public List<string> dialogue;            // Array of dialouge that will be shown to the player
     public float typingSpeed;                // Speed of typing
-    public bool done;                        // Determines if the entire dialogue is finished or not
+    
+    private bool done;                       // Determines if the entire dialogue is finished or not
+    public bool Done { get { return done; } set { done = value; }  }
 
     private int index;                       // Index of current sentece that is being displayed
     private bool finished;                   // Determines if text has finished typing
@@ -38,16 +40,13 @@ public class Dialogue : MonoBehaviour
 
         // Load text file data from a test file
         LoadDataFromFile();
-
-        // Start the typing coroutuine
-        StartCoroutine(Type());
     }
 
     /// <summary>
     ///  Types out a sentence to a TextMeshPro object in the scene
     /// </summary>
     /// <returns></returns>
-    private IEnumerator Type()
+    public IEnumerator Type()
     {
         // Loop through each character in the current sentence being shwon
         foreach (char letter in dialogue[index].ToCharArray())

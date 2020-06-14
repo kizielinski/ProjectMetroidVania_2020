@@ -9,26 +9,33 @@ using UnityEngine;
 
 public class Signpost : StaticObject
 {
-    public InputManager inputManager;   // Reference to the input manager to handle inputs
-    public GameObject uiManager;        // Reference to the UIManager to control when it appears/dissapears
-    public Dialogue dialogueScript;     // Reference to the dialogue script 
     public TextAsset textFile;          // The text file that holds all the string data for dialogue
 
     private bool activated;             // Determines if the object has already been interacted with before. Prevents multiple instances of one action when holding down a key
+    private InputManager inputManager;  // Reference to the input manager to handle inputs
+    private GameObject dialogueWindow;  // Reference to the dialogueWindow to control when it appears/dissapears
+    private Dialogue dialogueScript;    // Reference to the dialogue script 
 
     // Start is called before the first frame update
-    void Start()
+    protected override void Start()
     {
-        dialogueScript = GetComponent<Dialogue>();      // Get the dialogue script
-        activated = false;                              // Set activated to false to start off the object
+        base.Start();
 
-        // Set the dialogue script's text file to the one given in this object
-        dialogueScript.textFile = this.textFile;
+        inputManager = GameObject.Find("GameManager").GetComponent<InputManager>(); // Get the inputManager from the GameManager
+        dialogueWindow = GameObject.Find("DialogueWindow");                         // Get the dialogueWindow
+        dialogueScript = GameObject.Find("Dialogue").GetComponent<Dialogue>();      // Get the dialogue script
+        activated = false;                                                          // Set activated to false to start off the object
+        dialogueScript.textFile = this.textFile;                                    // Set the dialogue script's text file to the one given in this object
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (DetectPlayer())
+        {
+            gameObject.GetComponent<Renderer>().material.color = Color.red;
+        }
+
         // Check if the player is within range and if the objec thas been activated yet or not
         if (DetectPlayer() && activated == false)
         {
@@ -36,6 +43,15 @@ public class Signpost : StaticObject
             activated = true;
             Interaction();
         }
+
+        // If the dialogue is done, then hide the dialogueWindow again and set activated to false
+        if (dialogueScript.Done == true)
+        {
+            activated = false;
+            dialogueWindow.SetActive(false);
+        }
+
+        Debug.Log(DetectPlayer());
     }
 
     /// <summary>
@@ -43,8 +59,10 @@ public class Signpost : StaticObject
     /// </summary>
     public override void Interaction()
     {
-        // Unhide the uiManager and set it to active
-        uiManager.SetActive(true);
+        // Unhide the dialogueWindow and set it to active
+        dialogueWindow.SetActive(true);
 
+        // Start the typing coroutine in Dialogue
+        StartCoroutine(dialogueScript.Type());
     }
 }
