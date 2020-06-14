@@ -21,7 +21,7 @@ public class Dialogue : MonoBehaviour
     public List<string> dialogue;            // Array of dialouge that will be shown to the player
     public float typingSpeed;                // Speed of typing
 
-    public int index;                        // Index of current sentece that is being displayed
+    private int index;                       // Index of current sentece that is being displayed
     private bool finished;                   // Determines if text has finished typing
     private AudioSource source;              // AudioSource for the typing SFX
 
@@ -67,6 +67,7 @@ public class Dialogue : MonoBehaviour
                 source.Play();
             }
             // if the text has finished typing, break out of the loop to prevent further typing
+            // This stops coroutine/threading issues with jumbled up text 
             else
             {
                 break;
