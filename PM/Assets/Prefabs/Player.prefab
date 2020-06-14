@@ -219,7 +219,7 @@ MonoBehaviour:
   _width: 0
   _height: 0
   _maxHorizontalSpeed: 6
-  _maxVerticalSpeed: 6
+  _maxVerticalSpeed: 10
   _gravity: -15
   _onGround: 0
   _playerState: 0

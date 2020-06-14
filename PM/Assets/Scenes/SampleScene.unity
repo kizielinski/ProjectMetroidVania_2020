@@ -1648,10 +1648,35 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 2951075227944947864, guid: f9e154b4588264240aa67fd83ebd7a18,
+        type: 3}
+      propertyPath: m_LocalScale.x
+      value: 2.0466297
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951075227944947864, guid: f9e154b4588264240aa67fd83ebd7a18,
+        type: 3}
+      propertyPath: m_LocalScale.y
+      value: 2.0466297
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951075227944947864, guid: f9e154b4588264240aa67fd83ebd7a18,
+        type: 3}
+      propertyPath: m_LocalScale.z
+      value: 2.0466297
+      objectReference: {fileID: 0}
     - target: {fileID: 2951075227944947866, guid: f9e154b4588264240aa67fd83ebd7a18,
         type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951075227944947871, guid: f9e154b4588264240aa67fd83ebd7a18,
+        type: 3}
+      propertyPath: _maxVerticalSpeed
+      value: 10
+      objectReference: {fileID: 0}
+    - target: {fileID: 2951075227944947871, guid: f9e154b4588264240aa67fd83ebd7a18,
+        type: 3}
+      propertyPath: _maxHorizontalSpeed
+      value: 5
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f9e154b4588264240aa67fd83ebd7a18, type: 3}
@@ -1766,6 +1791,11 @@ PrefabInstance:
       propertyPath: player
       value: 
       objectReference: {fileID: 1910476457}
+    - target: {fileID: 7756883308396029334, guid: 51f30b16871dd8b4c876ca507b3920a9,
+        type: 3}
+      propertyPath: dashForce
+      value: 5000
+      objectReference: {fileID: 0}
     - target: {fileID: 7756883308396029335, guid: 51f30b16871dd8b4c876ca507b3920a9,
         type: 3}
       propertyPath: m_Name
