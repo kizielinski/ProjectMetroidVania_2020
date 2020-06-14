@@ -153,8 +153,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
-  m_AnchoredPosition: {x: 117.2, y: -183.5}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 301.1, y: -221}
+  m_SizeDelta: {x: 567.7198, y: 73.981766}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8767784543952229764
 CanvasRenderer:
@@ -656,23 +656,28 @@ Transform:
   m_LocalPosition: {x: 100, y: 273.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 3301801533473407097}
+  - {fileID: 3903700420398348906}
   - {fileID: 7721340331796732754}
   - {fileID: 1544650980293360484}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &5637507932506356808
+--- !u!1001 &6179662447744108123
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
     m_TransformParent: {fileID: 384389734927663667}
     m_Modifications:
+    - target: {fileID: 294577411126469374, guid: 84386dbea6b4a1e4c93ee664f22ce547,
+        type: 3}
+      propertyPath: textDisplay
+      value: 
+      objectReference: {fileID: 6649292921955151478}
     - target: {fileID: 6750029451728798696, guid: 84386dbea6b4a1e4c93ee664f22ce547,
         type: 3}
       propertyPath: m_Name
-      value: TextBox
+      value: Dialogue
       objectReference: {fileID: 0}
     - target: {fileID: 7200737490850364465, guid: 84386dbea6b4a1e4c93ee664f22ce547,
         type: 3}
@@ -729,51 +734,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 8975441164140775253, guid: 84386dbea6b4a1e4c93ee664f22ce547,
-        type: 3}
-      propertyPath: dialogue.Array.size
-      value: 5
-      objectReference: {fileID: 0}
-    - target: {fileID: 8975441164140775253, guid: 84386dbea6b4a1e4c93ee664f22ce547,
-        type: 3}
-      propertyPath: textDisplay
-      value: 
-      objectReference: {fileID: 6649292921955151478}
-    - target: {fileID: 8975441164140775253, guid: 84386dbea6b4a1e4c93ee664f22ce547,
-        type: 3}
-      propertyPath: typingSpeed
-      value: 0.1
-      objectReference: {fileID: 0}
-    - target: {fileID: 8975441164140775253, guid: 84386dbea6b4a1e4c93ee664f22ce547,
-        type: 3}
-      propertyPath: dialogue.Array.data[0]
-      value: test
-      objectReference: {fileID: 0}
-    - target: {fileID: 8975441164140775253, guid: 84386dbea6b4a1e4c93ee664f22ce547,
-        type: 3}
-      propertyPath: dialogue.Array.data[1]
-      value: testtest
-      objectReference: {fileID: 0}
-    - target: {fileID: 8975441164140775253, guid: 84386dbea6b4a1e4c93ee664f22ce547,
-        type: 3}
-      propertyPath: dialogue.Array.data[2]
-      value: testtesttest
-      objectReference: {fileID: 0}
-    - target: {fileID: 8975441164140775253, guid: 84386dbea6b4a1e4c93ee664f22ce547,
-        type: 3}
-      propertyPath: dialogue.Array.data[3]
-      value: testtesttesttest
-      objectReference: {fileID: 0}
-    - target: {fileID: 8975441164140775253, guid: 84386dbea6b4a1e4c93ee664f22ce547,
-        type: 3}
-      propertyPath: dialogue.Array.data[4]
-      value: testtesttesttest
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 84386dbea6b4a1e4c93ee664f22ce547, type: 3}
---- !u!4 &3301801533473407097 stripped
+--- !u!4 &3903700420398348906 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7200737490850364465, guid: 84386dbea6b4a1e4c93ee664f22ce547,
     type: 3}
-  m_PrefabInstance: {fileID: 5637507932506356808}
+  m_PrefabInstance: {fileID: 6179662447744108123}
   m_PrefabAsset: {fileID: 0}

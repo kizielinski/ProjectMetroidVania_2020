@@ -14,16 +14,16 @@ using UnityEngine.UI;
 // Reference: https://gamedev.stackexchange.com/questions/138485/how-to-make-a-text-box-where-text-types-smoothly
 // Reference: https://www.youtube.com/watch?v=f-oSXg6_AMQ
 // Unity File IO Reference: https://support.unity3d.com/hc/en-us/articles/115000341143-How-do-I-read-and-write-data-from-a-text-file-
-public class TextBox : MonoBehaviour
+public class Dialogue : MonoBehaviour
 {
     public TextMeshProUGUI textDisplay;      // TextMeshPro object to display text
     public TextAsset textFile;               // The text file to use for dialouge
     public List<string> dialogue;            // Array of dialouge that will be shown to the player
-    public float typingSpeed;                // Speed of 
-    private int index;                       // Index of current sentece that is being displayed
+    public float typingSpeed;                // Speed of typing
+
+    public int index;                        // Index of current sentece that is being displayed
     private bool finished;                   // Determines if text has finished typing
     private AudioSource source;              // AudioSource for the typing SFX
-    private IEnumerator typingCoroutine;     // IEnumerator to track the typing coroutine
 
     // Start is called before the first frame update
     private void Start()
@@ -31,7 +31,6 @@ public class TextBox : MonoBehaviour
         // Initialize values
         dialogue = new List<string>();
         textDisplay.text = "";
-        typingCoroutine = Type();
         source = GetComponent<AudioSource>();
         finished = false;
 
@@ -66,6 +65,11 @@ public class TextBox : MonoBehaviour
 
                 // Play a typing sound effect on each type
                 source.Play();
+            }
+            // if the text has finished typing, break out of the loop to prevent further typing
+            else
+            {
+                break;
             }
 
             // Yield return to wait before typing out the next letter in the sentence
@@ -117,17 +121,18 @@ public class TextBox : MonoBehaviour
                 finished = false;           // Set finished to false
                 index++;                    // Increment index to go to the next sentence
                 textDisplay.text = "";      // Reset the text display to blank text
-                StartCoroutine(Type());     // Start Typing again
+                StartCoroutine(Type());     // Start the coroutine again
             }
+            // If there is no more dialogue, display an empty text string
             else
             {
-                finished = true;
                 textDisplay.text = "";
             }
         }
         // If the current sentence is not finished, display the complete text and set finished to true
         else
         {
+            StopCoroutine(Type());
             textDisplay.text = dialogue[index];
             finished = true;
         }

@@ -9,10 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7200737490850364465}
-  - component: {fileID: 8975441164140775253}
+  - component: {fileID: 294577411126469374}
   - component: {fileID: 4701704434716539879}
   m_Layer: 0
-  m_Name: TextBox
+  m_Name: Dialogue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -32,7 +32,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8975441164140775253
+--- !u!114 &294577411126469374
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -44,10 +44,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07ea5989cc3cfc64a8b581a1bb37c2f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  textToType: "We know they sent you! Please just let us go and you\u2019ll never
-    hear from us again. Please, I'm begging you don\u2019t continue their tyranny.
-    No! Don\u2019t\u2026"
-  timeToType: 5
+  textDisplay: {fileID: 0}
+  textFile: {fileID: 4900000, guid: c567b0eccf8c99746a2289cf3fa93cb6, type: 3}
+  dialogue: []
+  typingSpeed: 0.1
 --- !u!82 &4701704434716539879
 AudioSource:
   m_ObjectHideFlags: 0
