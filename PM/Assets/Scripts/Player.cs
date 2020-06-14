@@ -17,7 +17,7 @@ public enum PlayerState
 public class Player : Object
 {
 
-    protected float _lengthOfRay = .01f;
+    protected float _lengthOfRay = .05f;
     public float LengthOfRay
     {
         get { return _lengthOfRay; }
@@ -198,16 +198,16 @@ public class Player : Object
             ApplyGravity();
         }
         // Player is on the ground AND moving so apply a frictional force.
-        if(_onGround && IsMoving && !keyIsBeingPressed)
+        if(_onGround && IsMoving && (!keyIsBeingPressed || _playerState == PlayerState.CROUCHING))
         {
             float coeff = 3;
             if(_playerState == PlayerState.CROUCHING)
             {
                 coeff *= 2;
             }
-            ApplyFriction(coeff);
+            if((_inputManager.Timer > 1))
+                ApplyFriction(coeff);
         }
-
         // Calculate the change in speed between last frame and this frame after all forces are considered.
         _changeInSpeed = (Acceleration * Time.deltaTime + Velocity).magnitude - previousSpeed;
 
@@ -267,6 +267,7 @@ public class Player : Object
                     StopHorizontalMotion();
                 }
             }
+            // Not colliding to the left.
             else
             {
                 _leftColliding = false;
@@ -280,6 +281,7 @@ public class Player : Object
                     StopHorizontalMotion();
                 }
             }
+            // Not colliding to the right.
             else
             {
                 _rightColliding = false;
@@ -293,6 +295,7 @@ public class Player : Object
                     StopVerticalMotion();
                 }
             }
+            // Not colliding above.
             else
             {
                 _topColliding = false;
