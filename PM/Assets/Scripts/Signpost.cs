@@ -23,6 +23,7 @@ public class Signpost : StaticObject
 
         inputManager = GameObject.Find("GameManager").GetComponent<InputManager>(); // Get the inputManager from the GameManager
         dialogueWindow = GameObject.Find("DialogueWindow");                         // Get the dialogueWindow
+        dialogueWindow.SetActive(false);
         dialogueScript = GameObject.Find("Dialogue").GetComponent<Dialogue>();      // Get the dialogue script
         activated = false;                                                          // Set activated to false to start off the object
         dialogueScript.textFile = this.textFile;                                    // Set the dialogue script's text file to the one given in this object
@@ -31,27 +32,31 @@ public class Signpost : StaticObject
     // Update is called once per frame
     void Update()
     {
+        // CHange color of object to see if collision is working
         if (DetectPlayer())
         {
             gameObject.GetComponent<Renderer>().material.color = Color.red;
         }
+        else
+        {
+            gameObject.GetComponent<Renderer>().material.color = Color.green;
+        }
 
         // Check if the player is within range and if the objec thas been activated yet or not
-        if (DetectPlayer() && activated == false)
+        if (DetectPlayer() && activated == false && inputManager.DetectInteraction())
         {
             // Set activated to true and begin interaction
             activated = true;
             Interaction();
         }
 
-        // If the dialogue is done, then hide the dialogueWindow again and set activated to false
+        // If the dialogue is done, then hide the dialogueWindow again
         if (dialogueScript.Done == true)
         {
             activated = false;
             dialogueWindow.SetActive(false);
+            dialogueScript.Done = false;
         }
-
-        Debug.Log(DetectPlayer());
     }
 
     /// <summary>
@@ -59,7 +64,7 @@ public class Signpost : StaticObject
     /// </summary>
     public override void Interaction()
     {
-        // Unhide the dialogueWindow and set it to active
+        // Unhide the dialogueWindow and reveal the dialogue window
         dialogueWindow.SetActive(true);
 
         // Start the typing coroutine in Dialogue

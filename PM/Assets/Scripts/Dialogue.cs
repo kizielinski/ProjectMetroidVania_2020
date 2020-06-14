@@ -128,7 +128,9 @@ public class Dialogue : MonoBehaviour
             // If there is no more dialogue, display an empty text string and set done to true
             else
             {
+                finished = false;
                 done = true;
+                index = 0;
                 textDisplay.text = "";
             }
         }
