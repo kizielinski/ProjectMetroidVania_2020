@@ -80,4 +80,23 @@ public class InputManager : MonoBehaviour
         }
         return false;
     }
+
+    // Will Beritz
+    // public bool DetectInteraction()
+    // 6/14/2020
+    /// <summary>
+    /// Returns true or false if the player presses E or not
+    /// </summary>
+    /// <returns> True or false on E kepress </returns>
+    public bool DetectInteraction()
+    {
+        if (Input.GetKey(KeyCode.E))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
 }

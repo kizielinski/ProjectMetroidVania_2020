@@ -20,6 +20,7 @@ public class Dialogue : MonoBehaviour
     public TextAsset textFile;               // The text file to use for dialouge
     public List<string> dialogue;            // Array of dialouge that will be shown to the player
     public float typingSpeed;                // Speed of typing
+    public bool done;                        // Determines if the entire dialogue is finished or not
 
     private int index;                       // Index of current sentece that is being displayed
     private bool finished;                   // Determines if text has finished typing
@@ -33,6 +34,7 @@ public class Dialogue : MonoBehaviour
         textDisplay.text = "";
         source = GetComponent<AudioSource>();
         finished = false;
+        done = false;
 
         // Load text file data from a test file
         LoadDataFromFile();
@@ -124,9 +126,10 @@ public class Dialogue : MonoBehaviour
                 textDisplay.text = "";      // Reset the text display to blank text
                 StartCoroutine(Type());     // Start the coroutine again
             }
-            // If there is no more dialogue, display an empty text string
+            // If there is no more dialogue, display an empty text string and set done to true
             else
             {
+                done = true;
                 textDisplay.text = "";
             }
         }
