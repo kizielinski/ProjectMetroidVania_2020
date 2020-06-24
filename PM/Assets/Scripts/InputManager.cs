@@ -1,4 +1,5 @@
-﻿/**
+﻿using System.Collections.Generic;
+/**
  * @Author - Sean Lynch
  * InputManager.cs
  * Date: 05/21/20
@@ -14,93 +15,78 @@ public class InputManager : MonoBehaviour
     private float horizontalForce;
     [SerializeField]
     private float jumpForce;
-    [SerializeField]
-    private float dashForce;
 
-    [SerializeField]
-    private float _timer;
-    public float Timer {
-        get { return _timer; }
-        set { _timer = value; }
-    }
 
-    private float _dashCoolDown = 4f;
-    private float _dashDuration = 0.75f;
-    private float _maxHorizontalSpeed;
+    private float _dashCoolDown;
+    private float _dashTimer;
+    private float _dashDuration;
     public void Start()
     {
-        _timer = _dashCoolDown;
         _playerScript = player.GetComponent<Player>();
-        _maxHorizontalSpeed = _playerScript.MaxHorizontalSpeed;
+        _dashCoolDown = 4;
+        _dashTimer = 4;
+        _dashDuration = .75f;
     }
     public void Update()
     {
-        _timer += Time.deltaTime;
-        // Decrease Max Horizontal Speed over time back down to 6;
-        if (_timer < _dashDuration && !_playerScript.LeftColliding && !_playerScript.RightColliding)
-        {
-            float direction = (player.GetComponent<SpriteRenderer>().flipX == true) ? -1 : 1;
-            _playerScript.ApplyForce(new Vector2(direction * dashForce * Mathf.Log(2 + 2 * (_timer) / (_dashDuration)) * Time.deltaTime, 0));
-            if (!_playerScript.IsMoving)
-                player.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 255);
-        }
-        else
-        {
-            player.GetComponent<Player>().MaxHorizontalSpeed = _maxHorizontalSpeed;
-            player.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 255);
-            if(_playerScript.MaxHorizontalSpeed > _maxHorizontalSpeed)
-            {
-                _playerScript.MaxHorizontalSpeed -= .01f;
-            }
-        }
+        _dashTimer += Time.deltaTime;
     }
-    public bool DetectInput()
+    public List<KeyCode> DetectInput()
     {
-        bool keyIsPressed = false;
-        if (_timer > _dashDuration)
+        // List of the keys being pressed this frame.
+        List<KeyCode> pressed = new List<KeyCode>();
+        if (_dashTimer > _dashDuration)
         {
-            if (_playerScript.PlayerState != PlayerState.CROUCHING && Input.GetKeyDown(KeyCode.W) && player.GetComponent<Player>().OnGround && _playerScript.OnGround)
-            {
-                player.GetComponent<Player>().ApplyForce(new Vector2(0, jumpForce));
-                keyIsPressed = true;
-            }
-            if (_playerScript.PlayerState != PlayerState.CROUCHING && Input.GetKey(KeyCode.A) && !_playerScript.LeftColliding)
+            // Player walks left
+            if (Input.GetKey(KeyCode.A) && !_playerScript.LeftColliding)
             {
                 player.GetComponent<SpriteRenderer>().flipX = true;
-                player.GetComponent<Player>().ApplyForce(new Vector2(-horizontalForce, 0));
-                keyIsPressed = true;
+                float force = -horizontalForce;
+                // Player is crouching so apply lesser force and dont return this key press.
+                if (_playerScript.PlayerState == PlayerState.CROUCHING)
+                    force /= 2;
+                player.GetComponent<Player>().ApplyForce(new Vector2(force, 0));
+                pressed.Add(KeyCode.A);
+
             }
-            if (_playerScript.PlayerState != PlayerState.CROUCHING && Input.GetKey(KeyCode.D) && !_playerScript.RightColliding)
+            // Players walks right
+            else if (Input.GetKey(KeyCode.D) && !_playerScript.RightColliding)
             {
                 player.GetComponent<SpriteRenderer>().flipX = false;
-                player.GetComponent<Player>().ApplyForce(new Vector2(horizontalForce, 0));
-                keyIsPressed = true;
+                float force = horizontalForce;
+                // Player is crouching so apply lesser force and dont return this key press.
+                if (_playerScript.PlayerState == PlayerState.CROUCHING)
+                    force /= 2;
+                player.GetComponent<Player>().ApplyForce(new Vector2(force, 0));
+                pressed.Add(KeyCode.D);
+            }
+            // Player jumps
+            if (_playerScript.PlayerState != PlayerState.JUMPING && _playerScript.PlayerState != PlayerState.CROUCHING && Input.GetKeyDown(KeyCode.W))
+            {
+                player.GetComponent<Player>().ApplyForce(new Vector2(0, jumpForce));
+                Debug.Log("Jump");
+                pressed.Add(KeyCode.W);
             }
             // Player presses the dash button
-            if (_playerScript.PlayerState != PlayerState.CROUCHING && _timer > _dashCoolDown && Input.GetKey(KeyCode.LeftShift))
+            if (_playerScript.PlayerState != PlayerState.CROUCHING && _dashTimer > _dashCoolDown && Input.GetKey(KeyCode.LeftShift))
             {
-                _timer = 0;
-                player.GetComponent<Player>().MaxHorizontalSpeed = 10;
-                player.GetComponent<Player>().PlayerState = PlayerState.DASHING;
+                _dashTimer = 0;
                 player.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 10);
-                keyIsPressed = true;
+                pressed.Add(KeyCode.LeftShift);
+            }
+            // Player presses the crouch button.
+            if (_playerScript.PlayerState != PlayerState.JUMPING && Input.GetKey(KeyCode.LeftControl))
+            {
+                player.GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
+                pressed.Add(KeyCode.LeftControl);
+            }
+            // Player is crouching but has released the crouch button.
+            else if (_playerScript.PlayerState == PlayerState.CROUCHING)
+            {
+                player.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
             }
         }
-        // Player presses the crouch button.
-        else if (Input.GetKey(KeyCode.LeftControl))
-        {
-            player.GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
-            _playerScript.PlayerState = PlayerState.CROUCHING;
-            keyIsPressed = true;
-        }
-        // Player is crouching but has released the crouch button.
-        else if (_playerScript.PlayerState == PlayerState.CROUCHING)
-        {
-            player.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
-            _playerScript.PlayerState = PlayerState.STANDING;
-            keyIsPressed = true;
-        }
-        return keyIsPressed;
+        return pressed;
     }
 
     // Will Beritz

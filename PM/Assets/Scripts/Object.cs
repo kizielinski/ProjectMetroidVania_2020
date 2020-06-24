@@ -98,14 +98,14 @@ public class Object : MonoBehaviour
     {
         _velocity += _acceleration * Time.deltaTime;
         // Going faster than max speed.
-        if(_velocity.x > _maxHorizontalSpeed)
+        if(Mathf.Abs(_velocity.x) > _maxHorizontalSpeed)
         {
             // Clamp velocity.
-            _velocity = new Vector2(_maxHorizontalSpeed, _velocity.y);
+            _velocity = new Vector2((_velocity.x > 0 ? 1 : -1) * _maxHorizontalSpeed, _velocity.y);
         }
-        if(_velocity.y > _maxVerticalSpeed)
+        if(Mathf.Abs(_velocity.y) > _maxVerticalSpeed)
         {
-            _velocity = new Vector2(_velocity.x, _maxVerticalSpeed);
+            _velocity = new Vector2(_velocity.x, (_velocity.y > 0 ? 1 : -1) * _maxVerticalSpeed);
         }
         _position += _velocity * Time.deltaTime;
         transform.position = _position; 

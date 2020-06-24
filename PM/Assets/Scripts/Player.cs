@@ -10,7 +10,8 @@ using UnityEngine;
 public enum PlayerState
 {
     STANDING,
-    MOVING,
+    WALKING,
+    JUMPING,
     CROUCHING,
     DASHING
 }
@@ -21,13 +22,6 @@ public class Player : Object
     public float LengthOfRay
     {
         get { return _lengthOfRay; }
-    }
-    [SerializeField]
-    protected bool _onGround = false;
-    public bool OnGround
-    {
-        get { return _onGround; }
-        set { _onGround = value; }
     }
 
     protected string _playerName;
@@ -54,6 +48,13 @@ public class Player : Object
     {
         get { return _changeInSpeed; }
         set { _changeInSpeed = value; }
+    }
+    [SerializeField]
+    protected bool _bottomColliding = false;
+    public bool BottomColliding
+    {
+        get { return _bottomColliding; }
+        set { _bottomColliding = value; }
     }
     private bool _leftColliding;
     public bool LeftColliding
@@ -112,6 +113,13 @@ public class Player : Object
         get { return _topRight; }
         set { _topRight = value; }
     }
+    [SerializeField]
+    private float _initialMaxHorizontalSpeed;
+    public float InitialMaxHorizontalSpeed
+    {
+        get { return _initialMaxHorizontalSpeed; }
+        set { _initialMaxHorizontalSpeed = value; }
+    }
 
     // WilliamBertiz
     // Four float fields for minX, maxX, minY, maxY for collisions
@@ -147,12 +155,20 @@ public class Player : Object
 
     private InputManager _inputManager;
     private float _rayOffSet = .1f;
+    private float _jumpTimer;
+    private float _dashTimer;
+    [SerializeField]
+    private float _dashDuration = .75f;
+    private float _dashForce = 5000;
+    private float _maxDashSpeed = 15;
 
     public void Start()
     {
         base.Start();
         _inputManager = GameObject.Find("GameManager").GetComponent<InputManager>();
-        _playerState = PlayerState.STANDING;
+        _playerState = PlayerState.JUMPING;
+        _jumpTimer = 0;
+        _dashTimer = 0;
 
         // Will Bertiz
         // Initial bounds of the player
@@ -180,46 +196,143 @@ public class Player : Object
 
         // The previous frames speed.
         float previousSpeed = this.Velocity.magnitude;
-
-        // Determine right off the bat whether or not the player should be moving.
-        IsMoving = (Velocity.magnitude - _speedAllowance > 0 || !OnGround) ? true : false;
-        if (IsMoving && _playerState != PlayerState.CROUCHING && _playerState != PlayerState.DASHING)
-            _playerState = PlayerState.MOVING;
-        else if (_playerState != PlayerState.CROUCHING)
-            _playerState = PlayerState.STANDING;
-
-
         // Detect input and alter the players acceleration accordingly.
-        bool keyIsBeingPressed = _inputManager.DetectInput();
-
-        // Player is not on the ground, so apply gravity.
-        if (!_onGround)
+        List<KeyCode> keys = _inputManager.DetectInput();
+        _jumpTimer += Time.deltaTime;
+        _dashTimer += Time.deltaTime;
+        // Determine which state the player is in and act accordingly. 
+        switch (_playerState)
         {
-            ApplyGravity();
-        }
-        // Player is on the ground AND moving so apply a frictional force.
-        if(_onGround && IsMoving && (!keyIsBeingPressed || _playerState == PlayerState.CROUCHING))
-        {
-            float coeff = 3;
-            if(_playerState == PlayerState.CROUCHING)
-            {
-                coeff *= 2;
-            }
-            if((_inputManager.Timer > 1))
-                ApplyFriction(coeff);
-        }
-        // Calculate the change in speed between last frame and this frame after all forces are considered.
-        _changeInSpeed = (Acceleration * Time.deltaTime + Velocity).magnitude - previousSpeed;
+            // Player is standing still.
+            case PlayerState.STANDING:
+                {
+                    // Player begins to jump or starts free falling.
+                    if (keys.Contains(KeyCode.W)|| Velocity.y != 0)
+                    {
+                        _playerState = PlayerState.JUMPING;
+                        _jumpTimer = 0;
+                    }
+                    // Player starts to dash.
+                    else if(keys.Contains(KeyCode.LeftShift))
+                    {
+                        _playerState = PlayerState.DASHING;
+                        _dashTimer = 0;
+                        MaxHorizontalSpeed = _maxDashSpeed;
+                    }
+                    // Player starts to crouch.
+                    else if(keys.Contains(KeyCode.LeftControl))
+                    {
+                        _playerState = PlayerState.CROUCHING;
+                    }
+                    // Player starts to move horizontally.
+                    else if (keys.Contains(KeyCode.A) || keys.Contains(KeyCode.D))
+                    {
+                        _playerState = PlayerState.WALKING;
+                    }
+                    break;
+                }
+            // Player is walking on the ground.
+            case PlayerState.WALKING:
+                {
+                    // Player starts to jump or starts free falling.
+                    if(keys.Contains(KeyCode.W) || Velocity.y != 0 || !_bottomColliding)
+                    {
+                        _playerState = PlayerState.JUMPING;
+                        _jumpTimer = 0;
+                    }
+                    // Plyaer starts to dash.
+                    else if (keys.Contains(KeyCode.LeftShift))
+                    {
+                        _playerState = PlayerState.DASHING;
+                        _dashTimer = 0;
+                        MaxHorizontalSpeed = _maxDashSpeed;
+                    }
+                    // Player starts crouching
+                    else if (keys.Contains(KeyCode.LeftControl))
+                    {
+                        _playerState = PlayerState.CROUCHING;
+                    }
 
-        // Player is on the ground, is decceleration, is moving slow enough, and therefore should be stopped.
-        if(!IsMoving &&_onGround && _changeInSpeed <= 0)
-        {
-            Velocity = Vector2.zero;
-        }
-        // Only detect collisions when the player is moving.
-        if(IsMoving)
-            DetectCollisions();
+                    // Player should now be standing still.
+                    if (keys.Count == 0 && Velocity.magnitude - _speedAllowance < 0)
+                    {
+                        Velocity = Vector2.zero;
+                        _playerState = PlayerState.STANDING;
+                    }
+                    // Not initiating walk so apply friction against the player.
+                    else if (keys.Count == 0)
+                    {
+                        ApplyFriction(3);
+                    }
+                    break;
+                }
+            case PlayerState.JUMPING:
+                {
+                    if (_jumpTimer > .1 && _bottomColliding)
+                    {
+                        _playerState = PlayerState.WALKING;
+                        _jumpTimer = 0;
+                    }
+                    if (keys.Contains(KeyCode.LeftShift))
+                    {
+                        _playerState = PlayerState.DASHING;
+                        MaxHorizontalSpeed = _maxDashSpeed;
+                        _dashTimer = 0;
+                    }
+                    else
+                    {
+                        ApplyGravity();
+                    }
+                    break;
+                }
+            case PlayerState.CROUCHING:
+                {
+                    // Player should now be standing still.
+                    if (!keys.Contains(KeyCode.A) && !keys.Contains(KeyCode.D) && Velocity.magnitude - _speedAllowance < 0)
+                    {
+                        Velocity = Vector2.zero;
+                    }
+                    // Not initiating walk so apply friction against the player.
+                    else
+                    {
+                        ApplyFriction(4);
+                    }
 
+                    // Transition back to the standing state.
+                    if(!keys.Contains(KeyCode.LeftControl))
+                    {
+                        _playerState = PlayerState.STANDING;
+                        _leftColliding = false;
+                        _rightColliding = false;
+                    }
+                    break;
+                }
+            case PlayerState.DASHING:
+                {
+                    // Player is airborn.
+                    if (!_bottomColliding)
+                    {
+                        ApplyGravity();
+                    }
+                    // Apply dash force for the duration of the dash.
+                    if (_dashTimer < _dashDuration && !_leftColliding && !_rightColliding)
+                    {
+                        float direction = (this.GetComponent<SpriteRenderer>().flipX == true) ? -1 : 1;
+                        ApplyForce(new Vector2(direction * _dashForce * Mathf.Log(2 + 2 * (_dashTimer) / (_dashDuration)) * Time.deltaTime, 0));
+                        MaxHorizontalSpeed -= (_maxDashSpeed - _initialMaxHorizontalSpeed / _dashDuration) * Time.deltaTime;
+                    }
+                    // Collided with a wall so stop dash.
+                    else
+                    {
+                        MaxHorizontalSpeed = 5;
+                        this.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 255);
+                        _playerState = PlayerState.WALKING;
+                    }
+                    break;
+                }
+
+        }
+        DetectCollisions();
         // Apply the calculated forces to the player.
         Move();
     }
@@ -228,7 +341,7 @@ public class Player : Object
     {
         base.Move();
     }
-    public bool DetectCollisions()
+    public void DetectCollisions()
     {
         // Position of the four corners of the sprite...
         _bottomLeft = new Vector3(transform.position.x - _width / 2, transform.position.y - _height / 2);
@@ -251,61 +364,215 @@ public class Player : Object
         Debug.DrawLine(_bottomRight, _bottomRight + new Vector2(_lengthOfRay, 0), Color.red);
 
         // Only check collisions when the player is moving.
-        if (_isMoving)
+        if (Velocity.magnitude > 0)
         {
-            // Colliding with the ground, stop the player from moving vertically.
-            if (!_onGround && (Physics2D.Raycast(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay) || Physics2D.Raycast(_bottomRight - new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay)) && !_onGround)
+            bool topLeftColliding = Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
+            bool topRightColliding = Physics2D.Raycast(_topRight - new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
+            bool leftTopColliding = Physics2D.Raycast(_topLeft - new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay);
+            bool leftBottomColliding = Physics2D.Raycast(_bottomLeft + new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay);
+            bool bottomLeftColliding = Physics2D.Raycast(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay);
+            bool bottomRightColliding = Physics2D.Raycast(_bottomRight - new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay);
+            bool rightTopColliding = Physics2D.Raycast(_topRight - new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
+            bool rightBottomColliding = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
+
+            switch (_playerState)
             {
-                _onGround = true;
-                StopVerticalMotion();
-            }
-            // Colliding with a wall to the left of the player.
-            if(Physics2D.Raycast(_topLeft - new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay) || Physics2D.Raycast(_bottomLeft + new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay)){
-                if (!_leftColliding)
-                {
-                    _leftColliding = true;
-                    StopHorizontalMotion();
-                }
-            }
-            // Not colliding to the left.
-            else
-            {
-                _leftColliding = false;
-            }
-            // Colliding with a wal to the right of the player.
-            if(Physics2D.Raycast(_topRight - new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay) || Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay))
-            {
-                if (!_rightColliding)
-                {
-                    _rightColliding = true;
-                    StopHorizontalMotion();
-                }
-            }
-            // Not colliding to the right.
-            else
-            {
-                _rightColliding = false;
-            }
-            // Colliding with a wal to the right of the player.
-            if (Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay) || Physics2D.Raycast(_topRight - new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay))
-            {
-                if (!_topColliding)
-                {
-                    _topColliding = true;
-                    StopVerticalMotion();
-                }
-            }
-            // Not colliding above.
-            else
-            {
-                _topColliding = false;
-            }
-            // Player is in the air.
-            if (!Physics2D.Raycast(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay) && !Physics2D.Raycast(_bottomRight - new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay) && _onGround)
-            {
-                _onGround = false;
+                case PlayerState.WALKING:
+                    {
+                        // Colliding with the ground, stop the player from moving vertically.
+                        if (bottomLeftColliding || bottomRightColliding)
+                        {
+                            _bottomColliding = true;
+                            StopVerticalMotion();
+                        }
+                        else
+                        {
+                            _bottomColliding = false;
+                        }
+                        // Colliding with a wall to the left of the player.
+                        if (leftTopColliding || leftBottomColliding)
+                        {
+                            if (!_leftColliding)
+                            {
+                                _leftColliding = true;
+                                StopHorizontalMotion();
+                            }
+                        }
+                        // Not colliding to the left.
+                        else                       {
+                            _leftColliding = false;
+                        }
+                        // Colliding with a wal to the right of the player.
+                        if (rightTopColliding || rightBottomColliding)
+                        {
+                            if (!_rightColliding)
+                            {
+                                _rightColliding = true;
+                                StopHorizontalMotion();
+                            }
+                        }
+                        // Not colliding to the right.
+                        else
+                        {
+                            _rightColliding = false;
+                        }
+                        // Colliding with a wal to the right of the player.
+                        if (topLeftColliding || topRightColliding)
+                        {
+                            if (!_topColliding)
+                            {
+                                _topColliding = true;
+                                StopVerticalMotion();
+                            }
+                        }
+                        // Not colliding above.
+                        else
+                        {
+                            _topColliding = false;
+                        }
+                        break;
+                    }
+                case PlayerState.JUMPING:
+                    {
+                        if ((_jumpTimer > .1f) && (bottomLeftColliding || bottomRightColliding))
+                        {
+                            _bottomColliding = true;
+                            StopVerticalMotion();
+                        }
+                        else
+                        {
+                            _bottomColliding = false;
+                        }
+                        // Colliding with a wall to the left of the player.
+                        if (leftTopColliding || leftBottomColliding)
+                        {
+                            if (!_leftColliding)
+                            {
+                                _leftColliding = true;
+                                StopHorizontalMotion();
+                            }
+                        }
+                        // Not colliding to the left.
+                        else
+                        {
+                            _leftColliding = false;
+                        }
+                        // Colliding with a wal to the right of the player.
+                        if (rightTopColliding || rightBottomColliding)
+                        {
+                            if (!_rightColliding)
+                            {
+                                _rightColliding = true;
+                                StopHorizontalMotion();
+                            }
+                        }
+                        // Not colliding to the right.
+                        else
+                        {
+                            _rightColliding = false;
+                        }
+                        // Colliding with a wal to the right of the player.
+                        if (topLeftColliding || topRightColliding)
+                        {
+                            if (!_topColliding)
+                            {
+                                _topColliding = true;
+                                StopVerticalMotion();
+                            }
+                        }
+                        // Not colliding above.
+                        else
+                        {
+                            _topColliding = false;
+                        }
+                        break;
+                    }
+                case PlayerState.CROUCHING:
+                    {
+                        // Colliding with the ground, stop the player from moving vertically.
+                        if (bottomLeftColliding || bottomRightColliding)
+                        {
+                            _bottomColliding = true;
+                            StopVerticalMotion();
+                        }
+                        else
+                        {
+                            _bottomColliding = false;
+                        }
+                        // Colliding with a wall to the left of the player or prevent the player from walking off a ledge to the left.
+                        if (leftTopColliding || leftBottomColliding || !bottomLeftColliding)
+                        {
+                            if (!_leftColliding)
+                            {
+                                _leftColliding = true;
+                                StopHorizontalMotion();
+                            }
+                        }
+                        // Not colliding to the left.
+                        else
+                        {
+                            _leftColliding = false;
+                        }
+                        // Colliding with a wall to the right of the player or prevent the player from walking off a ledge to the right.
+                        if ((rightTopColliding || rightBottomColliding) || !bottomRightColliding)
+                        {
+                            if (!_rightColliding)
+                            {
+                                _rightColliding = true;
+                                StopHorizontalMotion();
+                            }
+                        }
+                        // Not colliding to the right.
+                        else
+                        {
+                            _rightColliding = false;
+                        }
+                        break;
+                    }
+                case PlayerState.DASHING:
+                    {
+                        // Colliding with the ground, stop the player from moving vertically.
+                        if (bottomLeftColliding || bottomRightColliding)
+                        {
+                            _bottomColliding = true;
+                            StopVerticalMotion();
+                        }
+                        else
+                        {
+                            _bottomColliding = false;
+                        }
+                        // Colliding with a wal to the right of the player.
+                        if (rightTopColliding || rightBottomColliding)
+                        {
+                            if (!_rightColliding)
+                            {
+                                _rightColliding = true;
+                                StopHorizontalMotion();
+                            }
+                        }
+                        // Not colliding to the right.
+                        else
+                        {
+                            _rightColliding = false;
+                        }
+                        // Colliding with a wal to the right of the player.
+                        if (topLeftColliding || topRightColliding)
+                        {
+                            if (!_topColliding)
+                            {
+                                _topColliding = true;
+                                StopVerticalMotion();
+                            }
+                        }
+                        // Not colliding above.
+                        else
+                        {
+                            _topColliding = false;
+                        }
+                        break;
+                    }
+
             }
         }
-        return false;
     }
 }
