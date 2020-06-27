@@ -200,7 +200,9 @@ public class Player : Object
         List<KeyCode> keys = _inputManager.DetectInput();
         _jumpTimer += Time.deltaTime;
         _dashTimer += Time.deltaTime;
-        // Determine which state the player is in and act accordingly. 
+        // Determine the current state of the player.
+        // 1. Apply appropriate forces.
+        // 2. Check for state change.
         switch (_playerState)
         {
             // Player is standing still.
@@ -540,6 +542,20 @@ public class Player : Object
                         else
                         {
                             _bottomColliding = false;
+                        }
+                        // Colliding with a wall to the left of the player.
+                        if (leftTopColliding || leftBottomColliding)
+                        {
+                            if (!_leftColliding)
+                            {
+                                _leftColliding = true;
+                                StopHorizontalMotion();
+                            }
+                        }
+                        // Not colliding to the left.
+                        else
+                        {
+                            _leftColliding = false;
                         }
                         // Colliding with a wal to the right of the player.
                         if (rightTopColliding || rightBottomColliding)
