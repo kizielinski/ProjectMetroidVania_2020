@@ -18,7 +18,8 @@ using UnityEngine.Audio;
 public class AudioManager_2 : MonoBehaviour
 {
     public AudioMixer masterMixer;
-    AudioSource source;
+
+    public AudioSource source;
 
     // Checks if music is playing
     bool isPlaying;
