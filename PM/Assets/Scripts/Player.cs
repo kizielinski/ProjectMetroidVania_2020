@@ -6,6 +6,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public enum PlayerState
 {
@@ -160,14 +161,18 @@ public class Player : Object
     [SerializeField]
     private float _dashDuration = .75f;
     private float _dashForce = 5000;
-    private float _maxDashSpeed = 15;
+    [SerializeField]
+    private float _maxDashSpeed;
+
+    public GridLayout grid;
+    public Tilemap tileMap;
 
     public void Start()
     {
         base.Start();
         _inputManager = GameObject.Find("GameManager").GetComponent<InputManager>();
         _playerState = PlayerState.JUMPING;
-        _jumpTimer = 0;
+        _jumpTimer = 2;
         _dashTimer = 0;
 
         // Will Bertiz
@@ -209,7 +214,7 @@ public class Player : Object
             case PlayerState.STANDING:
                 {
                     // Player begins to jump or starts free falling.
-                    if (keys.Contains(KeyCode.W)|| Velocity.y != 0)
+                    if (keys.Contains(KeyCode.W) || Velocity.y != 0)
                     {
                         _playerState = PlayerState.JUMPING;
                         _jumpTimer = 0;
@@ -273,9 +278,8 @@ public class Player : Object
                     if (_jumpTimer > .1 && _bottomColliding)
                     {
                         _playerState = PlayerState.WALKING;
-                        _jumpTimer = 0;
                     }
-                    if (keys.Contains(KeyCode.LeftShift))
+                    else if (keys.Contains(KeyCode.LeftShift))
                     {
                         _playerState = PlayerState.DASHING;
                         MaxHorizontalSpeed = _maxDashSpeed;
@@ -365,230 +369,163 @@ public class Player : Object
         Debug.DrawLine(_topRight, _topRight + new Vector2(_lengthOfRay, 0), Color.red);
         Debug.DrawLine(_bottomRight, _bottomRight + new Vector2(_lengthOfRay, 0), Color.red);
 
-        // Only check collisions when the player is moving.
-        if (Velocity.magnitude > 0)
+
+        RaycastHit2D topLeftColliding = Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
+        RaycastHit2D topRightColliding = Physics2D.Raycast(_topRight - new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
+        RaycastHit2D leftTopColliding = Physics2D.Raycast(_topLeft - new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay);
+        RaycastHit2D leftBottomColliding = Physics2D.Raycast(_bottomLeft + new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay);
+        RaycastHit2D bottomLeftColliding = Physics2D.Raycast(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay);
+        RaycastHit2D bottomRightColliding = Physics2D.Raycast(_bottomRight - new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay);
+        RaycastHit2D rightTopColliding = Physics2D.Raycast(_topRight - new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
+        RaycastHit2D rightBottomColliding = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
+
+        switch (_playerState)
         {
-            bool topLeftColliding = Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
-            bool topRightColliding = Physics2D.Raycast(_topRight - new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
-            bool leftTopColliding = Physics2D.Raycast(_topLeft - new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay);
-            bool leftBottomColliding = Physics2D.Raycast(_bottomLeft + new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay);
-            bool bottomLeftColliding = Physics2D.Raycast(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay);
-            bool bottomRightColliding = Physics2D.Raycast(_bottomRight - new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay);
-            bool rightTopColliding = Physics2D.Raycast(_topRight - new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
-            bool rightBottomColliding = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
-
-            switch (_playerState)
-            {
-                case PlayerState.WALKING:
+            case PlayerState.STANDING:
+            case PlayerState.WALKING:
+            case PlayerState.DASHING:
+            case PlayerState.JUMPING:
+                {
+                    // Colliding with the ground, stop the player from moving vertically.
+                    if ((_jumpTimer > .1f) && (bottomLeftColliding.collider != null || bottomRightColliding.collider != null))
                     {
-                        // Colliding with the ground, stop the player from moving vertically.
-                        if (bottomLeftColliding || bottomRightColliding)
+                        if (!_bottomColliding)
                         {
                             _bottomColliding = true;
                             StopVerticalMotion();
+                            // Where player collided with tile.
+                            Vector3 tileWorldPos = bottomLeftColliding.collider != null ? bottomLeftColliding.point : bottomRightColliding.point;
+                            tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y - .1f);
+                            // Grid Coordinates of tile.
+                            Vector3Int cellGridPos = grid.WorldToCell(tileWorldPos);
+                            // Exact coordinate of tile.
+                            tileWorldPos = grid.CellToWorld(cellGridPos);
+                            Debug.Log(tileWorldPos);
+                            // Position the player to be resting flush on the tile.
+                            _position = new Vector2(_position.x, tileWorldPos.y + 1 + Height / 2 + _lengthOfRay / 4);
                         }
-                        else
-                        {
-                            _bottomColliding = false;
-                        }
-                        // Colliding with a wall to the left of the player.
-                        if (leftTopColliding || leftBottomColliding)
-                        {
-                            if (!_leftColliding)
-                            {
-                                _leftColliding = true;
-                                StopHorizontalMotion();
-                            }
-                        }
-                        // Not colliding to the left.
-                        else                       {
-                            _leftColliding = false;
-                        }
-                        // Colliding with a wal to the right of the player.
-                        if (rightTopColliding || rightBottomColliding)
-                        {
-                            if (!_rightColliding)
-                            {
-                                _rightColliding = true;
-                                StopHorizontalMotion();
-                            }
-                        }
-                        // Not colliding to the right.
-                        else
-                        {
-                            _rightColliding = false;
-                        }
-                        // Colliding with a wal to the right of the player.
-                        if (topLeftColliding || topRightColliding)
-                        {
-                            if (!_topColliding)
-                            {
-                                _topColliding = true;
-                                StopVerticalMotion();
-                            }
-                        }
-                        // Not colliding above.
-                        else
-                        {
-                            _topColliding = false;
-                        }
-                        break;
                     }
-                case PlayerState.JUMPING:
+                    else
                     {
-                        if ((_jumpTimer > .1f) && (bottomLeftColliding || bottomRightColliding))
-                        {
-                            _bottomColliding = true;
-                            StopVerticalMotion();
-                        }
-                        else
-                        {
-                            _bottomColliding = false;
-                        }
-                        // Colliding with a wall to the left of the player.
-                        if (leftTopColliding || leftBottomColliding)
-                        {
-                            if (!_leftColliding)
-                            {
-                                _leftColliding = true;
-                                StopHorizontalMotion();
-                            }
-                        }
-                        // Not colliding to the left.
-                        else
-                        {
-                            _leftColliding = false;
-                        }
-                        // Colliding with a wal to the right of the player.
-                        if (rightTopColliding || rightBottomColliding)
-                        {
-                            if (!_rightColliding)
-                            {
-                                _rightColliding = true;
-                                StopHorizontalMotion();
-                            }
-                        }
-                        // Not colliding to the right.
-                        else
-                        {
-                            _rightColliding = false;
-                        }
-                        // Colliding with a wal to the right of the player.
-                        if (topLeftColliding || topRightColliding)
-                        {
-                            if (!_topColliding)
-                            {
-                                _topColliding = true;
-                                StopVerticalMotion();
-                            }
-                        }
-                        // Not colliding above.
-                        else
-                        {
-                            _topColliding = false;
-                        }
-                        break;
+                        _bottomColliding = false;
                     }
-                case PlayerState.CROUCHING:
+                    // Colliding with a wall to the left of the player.
+                    if (leftTopColliding.collider || leftBottomColliding.collider)
                     {
-                        // Colliding with the ground, stop the player from moving vertically.
-                        if (bottomLeftColliding || bottomRightColliding)
+                        if (!_leftColliding)
                         {
-                            _bottomColliding = true;
-                            StopVerticalMotion();
+                            _leftColliding = true;
+                            StopHorizontalMotion();
+                            // Where player collided with tile.
+                            Vector3 tileWorldPos = leftTopColliding.collider != null ? leftTopColliding.point : leftBottomColliding.point;
+                            tileWorldPos = new Vector2(tileWorldPos.x - .1f, tileWorldPos.y);
+                            // Grid Coordinates of tile.
+                            Vector3Int cellGridPos = grid.WorldToCell(tileWorldPos);
+                            // Exact coordinate of tile.
+                            tileWorldPos = grid.CellToWorld(cellGridPos);
+                            Debug.Log(tileWorldPos);
+                            // Position the player to be resting flush on the tile.
+                            _position = new Vector2(tileWorldPos.x + 1 + Width / 2 + _lengthOfRay / 2, _position.y);
                         }
-                        else
-                        {
-                            _bottomColliding = false;
-                        }
-                        // Colliding with a wall to the left of the player or prevent the player from walking off a ledge to the left.
-                        if (leftTopColliding || leftBottomColliding || !bottomLeftColliding)
-                        {
-                            if (!_leftColliding)
-                            {
-                                _leftColliding = true;
-                                StopHorizontalMotion();
-                            }
-                        }
-                        // Not colliding to the left.
-                        else
-                        {
-                            _leftColliding = false;
-                        }
-                        // Colliding with a wall to the right of the player or prevent the player from walking off a ledge to the right.
-                        if ((rightTopColliding || rightBottomColliding) || !bottomRightColliding)
-                        {
-                            if (!_rightColliding)
-                            {
-                                _rightColliding = true;
-                                StopHorizontalMotion();
-                            }
-                        }
-                        // Not colliding to the right.
-                        else
-                        {
-                            _rightColliding = false;
-                        }
-                        break;
                     }
-                case PlayerState.DASHING:
+                    // Not colliding to the left.
+                    else
                     {
-                        // Colliding with the ground, stop the player from moving vertically.
-                        if (bottomLeftColliding || bottomRightColliding)
-                        {
-                            _bottomColliding = true;
-                            StopVerticalMotion();
-                        }
-                        else
-                        {
-                            _bottomColliding = false;
-                        }
-                        // Colliding with a wall to the left of the player.
-                        if (leftTopColliding || leftBottomColliding)
-                        {
-                            if (!_leftColliding)
-                            {
-                                _leftColliding = true;
-                                StopHorizontalMotion();
-                            }
-                        }
-                        // Not colliding to the left.
-                        else
-                        {
-                            _leftColliding = false;
-                        }
-                        // Colliding with a wal to the right of the player.
-                        if (rightTopColliding || rightBottomColliding)
-                        {
-                            if (!_rightColliding)
-                            {
-                                _rightColliding = true;
-                                StopHorizontalMotion();
-                            }
-                        }
-                        // Not colliding to the right.
-                        else
-                        {
-                            _rightColliding = false;
-                        }
-                        // Colliding with a wal to the right of the player.
-                        if (topLeftColliding || topRightColliding)
-                        {
-                            if (!_topColliding)
-                            {
-                                _topColliding = true;
-                                StopVerticalMotion();
-                            }
-                        }
-                        // Not colliding above.
-                        else
-                        {
-                            _topColliding = false;
-                        }
-                        break;
+                        _leftColliding = false;
                     }
-
-            }
+                    // Colliding with a wal to the right of the player.
+                    if (rightTopColliding.collider || rightBottomColliding.collider)
+                    {
+                        if (!_rightColliding)
+                        {
+                            _rightColliding = true;
+                            StopHorizontalMotion();
+                            // Where player collided with tile.
+                            Vector3 tileWorldPos = rightTopColliding.collider != null ? rightTopColliding.point : rightBottomColliding.point;
+                            tileWorldPos = new Vector2(tileWorldPos.x + .1f, tileWorldPos.y);
+                            // Grid Coordinates of tile.
+                            Vector3Int cellGridPos = grid.WorldToCell(tileWorldPos);
+                            // Exact coordinate of tile.
+                            tileWorldPos = grid.CellToWorld(cellGridPos);
+                            Debug.Log(tileWorldPos);
+                            // Position the player to be resting flush on the tile.
+                            _position = new Vector2(tileWorldPos.x - Width / 2 - _lengthOfRay / 2, _position.y);
+                        }
+                    }
+                    // Not colliding to the right.
+                    else
+                    {
+                        _rightColliding = false;
+                    }
+                    // Colliding with a wal to the right of the player.
+                    if (topLeftColliding.collider || topRightColliding.collider)
+                    {
+                        if (!_topColliding)
+                        {
+                            _topColliding = true;
+                            StopVerticalMotion();
+                            // Where player collided with tile.
+                            Vector3 tileWorldPos = topLeftColliding.collider != null ? topLeftColliding.point : topRightColliding.point;
+                            tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y + .1f);
+                            // Grid Coordinates of tile.
+                            Vector3Int cellGridPos = grid.WorldToCell(tileWorldPos);
+                            // Exact coordinate of tile.
+                            tileWorldPos = grid.CellToWorld(cellGridPos);
+                            Debug.Log(tileWorldPos);
+                            // Position the player to be resting flush on the tile.
+                            _position = new Vector2(_position.x, tileWorldPos.y - Height / 2 - _lengthOfRay / 2);
+                        }
+                    }
+                    // Not colliding above.
+                    else
+                    {
+                        _topColliding = false;
+                    }
+                    break;
+                }
+            case PlayerState.CROUCHING:
+                {
+                    // Colliding with the ground, stop the player from moving vertically.
+                    if (bottomLeftColliding.collider || bottomRightColliding.collider)
+                    {
+                        _bottomColliding = true;
+                        StopVerticalMotion();
+                    }
+                    else
+                    {
+                        _bottomColliding = false;
+                    }
+                    // Colliding with a wall to the left of the player or prevent the player from walking off a ledge to the left.
+                    if (leftTopColliding.collider || leftBottomColliding.collider || !bottomLeftColliding.collider)
+                    {
+                        if (!_leftColliding)
+                        {
+                            _leftColliding = true;
+                            StopHorizontalMotion();
+                        }
+                    }
+                    // Not colliding to the left.
+                    else
+                    {
+                        _leftColliding = false;
+                    }
+                    // Colliding with a wall to the right of the player or prevent the player from walking off a ledge to the right.
+                    if ((rightTopColliding.collider || rightBottomColliding.collider) || !bottomRightColliding.collider)
+                    {
+                        if (!_rightColliding)
+                        {
+                            _rightColliding = true;
+                            StopHorizontalMotion();
+                        }
+                    }
+                    // Not colliding to the right.
+                    else
+                    {
+                        _rightColliding = false;
+                    }
+                    break;
+                }
         }
     }
+
 }
