@@ -356,7 +356,6 @@ public class Player : Object
         _topRight = new Vector3(transform.position.x + _width / 2, transform.position.y + _height / 2);
         _topLeft = new Vector3(transform.position.x - _width / 2, transform.position.y + _height / 2);
 
-
         // Debug lines pointing downwards representing collision detection
         Debug.DrawLine(_bottomLeft + new Vector2(_rayOffSet, 0), _bottomLeft + new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
         Debug.DrawLine(_bottomRight - new Vector2(_rayOffSet, 0), _bottomRight - new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
@@ -534,5 +533,4 @@ public class Player : Object
                 }
         }
     }
-
 }
