@@ -18,8 +18,8 @@ public enum PlayerState
 }
 public class Player : Object
 {
-
-    protected float _lengthOfRay = .05f;
+    [SerializeField]
+    protected float _lengthOfRay;
     public float LengthOfRay
     {
         get { return _lengthOfRay; }
@@ -155,7 +155,8 @@ public class Player : Object
     }
 
     private InputManager _inputManager;
-    private float _rayOffSet = .1f;
+    [SerializeField]
+    private float _rayOffSet = .3f;
     private float _jumpTimer;
     private float _dashTimer;
     [SerializeField]
@@ -163,7 +164,7 @@ public class Player : Object
     private float _dashForce = 5000;
     [SerializeField]
     private float _maxDashSpeed;
-
+    private float _colliderOffset = .2f;
     public GridLayout grid;
     public Tilemap tileMap;
 
@@ -332,7 +333,7 @@ public class Player : Object
                     {
                         MaxHorizontalSpeed = 5;
                         this.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 255);
-                        _playerState = PlayerState.WALKING;
+                        _playerState = PlayerState.JUMPING;
                     }
                     break;
                 }
@@ -357,17 +358,17 @@ public class Player : Object
 
 
         // Debug lines pointing downwards representing collision detection
-        Debug.DrawLine(_bottomLeft, _bottomLeft - new Vector2(0, _lengthOfRay), Color.red);
-        Debug.DrawLine(_bottomRight, _bottomRight - new Vector2(0, _lengthOfRay), Color.red);
+        Debug.DrawLine(_bottomLeft + new Vector2(_rayOffSet, 0), _bottomLeft + new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
+        Debug.DrawLine(_bottomRight - new Vector2(_rayOffSet, 0), _bottomRight - new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
         // Debug lines pointing Upwards representing collision detection
-        Debug.DrawLine(_topLeft, _topLeft + new Vector2(0, _lengthOfRay), Color.red);
-        Debug.DrawLine(_topRight, _topRight + new Vector2(0, _lengthOfRay), Color.red);
+        Debug.DrawLine(_topLeft + new Vector2(_rayOffSet, 0), _topLeft + new Vector2(_rayOffSet, 0) + new Vector2(0, _lengthOfRay), Color.red);
+        Debug.DrawLine(_topRight - new Vector2(_rayOffSet, 0), _topRight - new Vector2(_rayOffSet, 0) + new Vector2(0, _lengthOfRay), Color.red);
         // Debug lines pointing left representing collision detection
-        Debug.DrawLine(_bottomLeft, _bottomLeft - new Vector2(_lengthOfRay, 0), Color.red);
-        Debug.DrawLine(_topLeft, _topLeft - new Vector2(_lengthOfRay, 0), Color.red);
+        Debug.DrawLine(_bottomLeft + new Vector2(0, _rayOffSet), _bottomLeft + new Vector2(0, _rayOffSet) - new Vector2(_lengthOfRay, 0), Color.red);
+        Debug.DrawLine(_topLeft - new Vector2(0, _rayOffSet), _topLeft - new Vector2(0, _rayOffSet) - new Vector2(_lengthOfRay, 0), Color.red);
         // Debug lines pointing right representing collision detection
-        Debug.DrawLine(_topRight, _topRight + new Vector2(_lengthOfRay, 0), Color.red);
-        Debug.DrawLine(_bottomRight, _bottomRight + new Vector2(_lengthOfRay, 0), Color.red);
+        Debug.DrawLine(_topRight - new Vector2(0, _rayOffSet), _topRight - new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
+        Debug.DrawLine(_bottomRight + new Vector2(0, _rayOffSet), _bottomRight + new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
 
 
         RaycastHit2D topLeftColliding = Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
@@ -391,16 +392,17 @@ public class Player : Object
                     {
                         if (!_bottomColliding)
                         {
+                            Debug.Log("Ground Collision");
                             _bottomColliding = true;
                             StopVerticalMotion();
                             // Where player collided with tile.
                             Vector3 tileWorldPos = bottomLeftColliding.collider != null ? bottomLeftColliding.point : bottomRightColliding.point;
-                            tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y - .1f);
+                            tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y - _colliderOffset);
                             // Grid Coordinates of tile.
                             Vector3Int cellGridPos = grid.WorldToCell(tileWorldPos);
                             // Exact coordinate of tile.
                             tileWorldPos = grid.CellToWorld(cellGridPos);
-                            Debug.Log(tileWorldPos);
+                            //Debug.Log(tileWorldPos);
                             // Position the player to be resting flush on the tile.
                             _position = new Vector2(_position.x, tileWorldPos.y + 1 + Height / 2 + _lengthOfRay / 4);
                         }
@@ -409,21 +411,23 @@ public class Player : Object
                     {
                         _bottomColliding = false;
                     }
-                    // Colliding with a wall to the left of the player.
                     if (leftTopColliding.collider || leftBottomColliding.collider)
                     {
+                        // Colliding with a wall to the left of the player.
+
                         if (!_leftColliding)
                         {
+                            Debug.Log("Left Collision");
                             _leftColliding = true;
                             StopHorizontalMotion();
                             // Where player collided with tile.
                             Vector3 tileWorldPos = leftTopColliding.collider != null ? leftTopColliding.point : leftBottomColliding.point;
-                            tileWorldPos = new Vector2(tileWorldPos.x - .1f, tileWorldPos.y);
+                            tileWorldPos = new Vector2(tileWorldPos.x - _colliderOffset, tileWorldPos.y);
                             // Grid Coordinates of tile.
                             Vector3Int cellGridPos = grid.WorldToCell(tileWorldPos);
                             // Exact coordinate of tile.
                             tileWorldPos = grid.CellToWorld(cellGridPos);
-                            Debug.Log(tileWorldPos);
+                            //Debug.Log(tileWorldPos);
                             // Position the player to be resting flush on the tile.
                             _position = new Vector2(tileWorldPos.x + 1 + Width / 2 + _lengthOfRay / 2, _position.y);
                         }
@@ -433,21 +437,22 @@ public class Player : Object
                     {
                         _leftColliding = false;
                     }
-                    // Colliding with a wal to the right of the player.
                     if (rightTopColliding.collider || rightBottomColliding.collider)
                     {
+
                         if (!_rightColliding)
                         {
+                            Debug.Log("Right Collision");
                             _rightColliding = true;
                             StopHorizontalMotion();
                             // Where player collided with tile.
                             Vector3 tileWorldPos = rightTopColliding.collider != null ? rightTopColliding.point : rightBottomColliding.point;
-                            tileWorldPos = new Vector2(tileWorldPos.x + .1f, tileWorldPos.y);
+                            tileWorldPos = new Vector2(tileWorldPos.x + _colliderOffset, tileWorldPos.y);
                             // Grid Coordinates of tile.
                             Vector3Int cellGridPos = grid.WorldToCell(tileWorldPos);
                             // Exact coordinate of tile.
                             tileWorldPos = grid.CellToWorld(cellGridPos);
-                            Debug.Log(tileWorldPos);
+                            //Debug.Log(tileWorldPos);
                             // Position the player to be resting flush on the tile.
                             _position = new Vector2(tileWorldPos.x - Width / 2 - _lengthOfRay / 2, _position.y);
                         }
@@ -457,21 +462,23 @@ public class Player : Object
                     {
                         _rightColliding = false;
                     }
-                    // Colliding with a wal to the right of the player.
                     if (topLeftColliding.collider || topRightColliding.collider)
                     {
+                        // Colliding with a wal to the right of the player.
+
                         if (!_topColliding)
                         {
+                            Debug.Log("Top Collision");
                             _topColliding = true;
                             StopVerticalMotion();
                             // Where player collided with tile.
                             Vector3 tileWorldPos = topLeftColliding.collider != null ? topLeftColliding.point : topRightColliding.point;
-                            tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y + .1f);
+                            tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y + _colliderOffset);
                             // Grid Coordinates of tile.
                             Vector3Int cellGridPos = grid.WorldToCell(tileWorldPos);
                             // Exact coordinate of tile.
                             tileWorldPos = grid.CellToWorld(cellGridPos);
-                            Debug.Log(tileWorldPos);
+                            //Debug.Log(tileWorldPos);
                             // Position the player to be resting flush on the tile.
                             _position = new Vector2(_position.x, tileWorldPos.y - Height / 2 - _lengthOfRay / 2);
                         }
