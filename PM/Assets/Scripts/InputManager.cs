@@ -38,7 +38,7 @@ public class InputManager : MonoBehaviour
         if (_dashTimer > _dashDuration)
         {
             // Player walks left
-            if (Input.GetKey(KeyCode.A) && !_playerScript.LeftColliding)
+            if (Input.GetKey(KeyCode.A) && !_playerScript.LeftColliding && _playerScript.PlayerState != PlayerState.DASHING)
             {
                 player.GetComponent<SpriteRenderer>().flipX = true;
                 float force = -horizontalForce;
@@ -50,7 +50,7 @@ public class InputManager : MonoBehaviour
 
             }
             // Players walks right
-            else if (Input.GetKey(KeyCode.D) && !_playerScript.RightColliding)
+            else if (Input.GetKey(KeyCode.D) && !_playerScript.RightColliding && _playerScript.PlayerState != PlayerState.DASHING)
             {
                 player.GetComponent<SpriteRenderer>().flipX = false;
                 float force = horizontalForce;
