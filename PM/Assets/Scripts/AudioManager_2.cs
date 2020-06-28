@@ -17,8 +17,10 @@ using UnityEngine.Audio;
 
 public class AudioManager_2 : MonoBehaviour
 {
+    // Mixer to add effects and play music through
     public AudioMixer masterMixer;
 
+    // Audio source to play music through
     public AudioSource source;
 
     // Checks if music is playing

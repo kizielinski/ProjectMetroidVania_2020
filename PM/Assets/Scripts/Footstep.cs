@@ -10,7 +10,7 @@ using UnityEngine;
 
 public class Footstep : MonoBehaviour
 {
-    private AudioManager_2 audioManager;
+    private AudioSource source;
 
     [SerializeField]
     private List<AudioClip> footstepSounds;
@@ -18,7 +18,7 @@ public class Footstep : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        audioManager = GetComponent<AudioManager_2>();
+        source = GetComponent<AudioSource>();
     }
 
     /// <summary>
@@ -27,7 +27,7 @@ public class Footstep : MonoBehaviour
     public void Step()
     {
         AudioClip stepSound = GetRandomClip();
-        audioManager.source.PlayOneShot(stepSound);
+        source.PlayOneShot(stepSound);
     }
 
     /// <summary>
