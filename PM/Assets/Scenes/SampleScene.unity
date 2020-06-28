@@ -1521,6 +1521,22 @@ Transform:
   m_Father: {fileID: 1003271093}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: -90}
+--- !u!114 &1910476465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1910476457}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbdf4c5f65090044cac7a9018bfcdd5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  footstepSounds:
+  - {fileID: 8300000, guid: af4f4222ea67a2141a2b9e22d2210088, type: 3}
+  - {fileID: 8300000, guid: e8dfa49dab9b2774d918aba1bee14db0, type: 3}
+  - {fileID: 8300000, guid: a3caca3376e17734f8fbb91530a15d62, type: 3}
 --- !u!1 &2109676038
 GameObject:
   m_ObjectHideFlags: 0
