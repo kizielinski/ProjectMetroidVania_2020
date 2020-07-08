@@ -128,7 +128,11 @@ public class Player : Object
         get { return _initialMaxHorizontalSpeed; }
         set { _initialMaxHorizontalSpeed = value; }
     }
-
+    private ProjectileType loadOut;
+    public ProjectileType LoadOut
+    {
+        get { return loadOut; }
+    }
     // WilliamBertiz
     // Four float fields for minX, maxX, minY, maxY for collisions
     // 6/14/2020
@@ -182,7 +186,7 @@ public class Player : Object
         _playerState = PlayerState.JUMPING;
         _jumpTimer = 2;
         _dashTimer = 0;
-
+        loadOut = ProjectileType.PLAYER_RIFLE;
         // Will Bertiz
         // Initial bounds of the player
         minX = transform.position.x;
@@ -194,7 +198,7 @@ public class Player : Object
     // Update is called once per frame
     protected override void Update()
     {
-        Debug.LogError(PlayerState);
+        //Debug.LogError(PlayerState);
         // Will Bertiz
         // Update the bounds of the player
         minX = transform.position.x;
