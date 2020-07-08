@@ -14,7 +14,8 @@ public enum PlayerState
     WALKING,
     JUMPING,
     CROUCHING,
-    DASHING
+    DASHING,
+    HANGING
 }
 public class Player : Object
 {
@@ -75,6 +76,12 @@ public class Player : Object
         get { return _topColliding; }
         set { _topColliding = value; }
     }
+    private bool _hangingCollision;
+    public bool HangingCollision
+    {
+        get { return _hangingCollision; }
+        set { _hangingCollision = value; }
+    }
     [SerializeField]
     private PlayerState _playerState;
     public PlayerState PlayerState
@@ -121,7 +128,11 @@ public class Player : Object
         get { return _initialMaxHorizontalSpeed; }
         set { _initialMaxHorizontalSpeed = value; }
     }
-
+    private ProjectileType loadOut;
+    public ProjectileType LoadOut
+    {
+        get { return loadOut; }
+    }
     // WilliamBertiz
     // Four float fields for minX, maxX, minY, maxY for collisions
     // 6/14/2020
@@ -175,7 +186,7 @@ public class Player : Object
         _playerState = PlayerState.JUMPING;
         _jumpTimer = 2;
         _dashTimer = 0;
-
+        loadOut = ProjectileType.PLAYER_RIFLE;
         // Will Bertiz
         // Initial bounds of the player
         minX = transform.position.x;
@@ -187,6 +198,7 @@ public class Player : Object
     // Update is called once per frame
     protected override void Update()
     {
+        //Debug.LogError(PlayerState);
         // Will Bertiz
         // Update the bounds of the player
         minX = transform.position.x;
@@ -239,6 +251,21 @@ public class Player : Object
                     }
                     break;
                 }
+            case PlayerState.HANGING:
+                if (keys.Contains(KeyCode.W))
+                {
+                    Debug.LogError("test");
+                    _playerState = PlayerState.JUMPING;
+                    _jumpTimer = 0;
+                    _hangingCollision = false;
+                }
+                else if (keys.Contains(KeyCode.S))
+                {
+                    _playerState = PlayerState.JUMPING;
+                    _jumpTimer = 0;
+                    _hangingCollision = false;
+                }
+                break;
             // Player is walking on the ground.
             case PlayerState.WALKING:
                 {
@@ -276,6 +303,10 @@ public class Player : Object
                 }
             case PlayerState.JUMPING:
                 {
+                    if (_hangingCollision)
+                    {
+                        _playerState = PlayerState.HANGING;
+                    }
                     if (_jumpTimer > .1 && _bottomColliding)
                     {
                         _playerState = PlayerState.WALKING;
@@ -344,6 +375,23 @@ public class Player : Object
         Move();
     }
 
+    public Vector2 ResetPlayerAlignment(RaycastHit2D incomingRaycast, RaycastHit2D alternateRay)
+    {
+        //Debug.LogError("New Test");
+        Vector3 tileWorldPos = incomingRaycast.collider != null ? incomingRaycast.point : alternateRay.point;
+        //Debug.LogError(tileWorldPos);
+        tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y);
+        //Debug.LogError(tileWorldPos);
+        // Grid Coordinates of tile.
+        Vector3Int cellGridPos = grid.WorldToCell(tileWorldPos);
+        //Debug.LogError(cellGridPos);
+        // Exact coordinate of tile.  
+        tileWorldPos = grid.CellToWorld(cellGridPos);
+        //Debug.Log(tileWorldPos);
+        // Position the player to be resting flush on the tile.                         
+        //Debug.LogError("End Test");
+        return new Vector2(_position.x, -0.25f);
+    }
     protected override void Move()
     {
         base.Move();
@@ -355,7 +403,6 @@ public class Player : Object
         _bottomRight = new Vector3(transform.position.x + _width / 2, transform.position.y - _height / 2);
         _topRight = new Vector3(transform.position.x + _width / 2, transform.position.y + _height / 2);
         _topLeft = new Vector3(transform.position.x - _width / 2, transform.position.y + _height / 2);
-
 
         // Debug lines pointing downwards representing collision detection
         Debug.DrawLine(_bottomLeft + new Vector2(_rayOffSet, 0), _bottomLeft + new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
@@ -370,6 +417,10 @@ public class Player : Object
         Debug.DrawLine(_topRight - new Vector2(0, _rayOffSet), _topRight - new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
         Debug.DrawLine(_bottomRight + new Vector2(0, _rayOffSet), _bottomRight + new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
 
+        //Diagonal Wall Grabbing Debug Lines
+        Debug.DrawLine(_topRight - new Vector2(-_rayOffSet, _rayOffSet), _topRight + new Vector2(_lengthOfRay, -_lengthOfRay));
+        Debug.DrawLine(_topLeft - new Vector2(_rayOffSet, _rayOffSet), _topLeft - new Vector2(_lengthOfRay, _lengthOfRay));
+
 
         RaycastHit2D topLeftColliding = Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
         RaycastHit2D topRightColliding = Physics2D.Raycast(_topRight - new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
@@ -380,8 +431,19 @@ public class Player : Object
         RaycastHit2D rightTopColliding = Physics2D.Raycast(_topRight - new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
         RaycastHit2D rightBottomColliding = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
 
+        RaycastHit2D topRightWallGrabCollision = Physics2D.Raycast(_topRight - new Vector2(-_rayOffSet, _rayOffSet), new Vector3(1, -1, 0), _lengthOfRay);
+        RaycastHit2D topLeftWallGrabCollision = Physics2D.Raycast(_topLeft - new Vector2(_rayOffSet, _rayOffSet), new Vector3(-1, -1, 0), _lengthOfRay);
+
         switch (_playerState)
         {
+            case PlayerState.HANGING:
+                if (_hangingCollision)
+                {
+                    StopVerticalMotion();
+                    StopHorizontalMotion();
+                    _position = ResetPlayerAlignment(topRightWallGrabCollision, topLeftWallGrabCollision);
+                }
+                break;
             case PlayerState.STANDING:
             case PlayerState.WALKING:
             case PlayerState.DASHING:
@@ -483,6 +545,18 @@ public class Player : Object
                             _position = new Vector2(_position.x, tileWorldPos.y - Height / 2 - _lengthOfRay / 2);
                         }
                     }
+                    if ((topLeftWallGrabCollision.collider || topRightWallGrabCollision.collider) && (!_topColliding && !_bottomColliding))
+                    {
+                        if ((CornerCollision(topLeftWallGrabCollision, topRightWallGrabCollision) ||
+                            CornerCollision(topRightWallGrabCollision, topLeftWallGrabCollision)) &&
+                            !_hangingCollision &&
+                            _jumpTimer > 0.1f)
+                        {
+                            StopHorizontalMotion();
+                            StopVerticalMotion();
+                            _hangingCollision = true;
+                        }
+                    }
                     // Not colliding above.
                     else
                     {
@@ -532,6 +606,27 @@ public class Player : Object
                     }
                     break;
                 }
+        }
+    }
+
+    public bool CornerCollision(RaycastHit2D incomingRaycast, RaycastHit2D alternateRay)
+    {
+        Vector3 rayCast = incomingRaycast.collider != null ? incomingRaycast.point : alternateRay.point;
+        Vector3Int cellGridPos = grid.WorldToCell(rayCast);
+        Vector3 this_tile = grid.CellToWorld(cellGridPos);
+
+        Vector2 upperBounds = new Vector2(this_tile.x + 1, this_tile.y + 0.5f);
+        Vector2 lowerBounds = new Vector2(this_tile.x + 0.5f, this_tile.y + 0.5f);
+
+        //if((rayCast.x <= upperBounds.x && rayCast.x >= lowerBounds.x) &&
+        //   (rayCast.y <= upperBounds.y && rayCast.y >= lowerBounds.y))
+        if (incomingRaycast.fraction > 0.1)
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 }

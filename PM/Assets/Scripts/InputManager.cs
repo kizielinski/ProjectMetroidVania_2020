@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
-/**
+﻿/**
  * @Author - Sean Lynch
  * InputManager.cs
  * Date: 05/21/20
  */
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class InputManager : MonoBehaviour
 {
@@ -15,17 +16,20 @@ public class InputManager : MonoBehaviour
     private float horizontalForce;
     [SerializeField]
     private float jumpForce;
+    private ProjectileManager _projectileManager;
 
 
     private float _dashCoolDown;
     private float _dashTimer;
     private float _dashDuration;
+
     public void Start()
     {
         _playerScript = player.GetComponent<Player>();
         _dashCoolDown = 4;
         _dashTimer = 4;
         _dashDuration = .75f;
+        _projectileManager = GameObject.Find("GameManager").GetComponent<ProjectileManager>();
     }
     public void Update()
     {
@@ -84,6 +88,12 @@ public class InputManager : MonoBehaviour
             else if (_playerScript.PlayerState == PlayerState.CROUCHING)
             {
                 player.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
+            }
+            // Send a message that a bullet is to be fired from the player.
+            if (_playerScript.PlayerState != PlayerState.HANGING && Input.GetKeyDown(KeyCode.Space))
+            {
+                //TODO: Send event to fire bullet.
+                _projectileManager.FirePlayerBullet(_playerScript.LoadOut, player.GetComponent<SpriteRenderer>().flipX ? new Vector2(-1, 0) : new Vector2(1, 0));
             }
         }
         return pressed;

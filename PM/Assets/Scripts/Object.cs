@@ -79,7 +79,7 @@ public class Object : MonoBehaviour
     protected void Start()
     {
         _position = transform.position;
-        _velocity = Vector2.zero;
+        //_velocity = Vector2.zero;
         _acceleration = Vector2.zero;
         Vector3 extents = GetComponent<SpriteRenderer>().bounds.extents;
         _width = extents.x * 2;
