@@ -9,6 +9,10 @@ public enum ProjectileType
 public class ProjectileManager : MonoBehaviour
 {
     private List<GameObject> _playerProjectiles;
+    public List<GameObject> PlayerProjectiles
+    {
+        get { return _playerProjectiles; }
+    }
     private List<GameObject> _enemyProjectiles;
     private float _maxPlayerBullets;
 
@@ -18,7 +22,7 @@ public class ProjectileManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        _maxPlayerBullets = 5;
+        _maxPlayerBullets = 15;
         _playerProjectiles = new List<GameObject>();
         _enemyProjectiles = new List<GameObject>();
     }
@@ -26,34 +30,36 @@ public class ProjectileManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        // Check to remove player bullet...
-        for(int i = 0; i < _playerProjectiles.Count; i++)
+        DeleteBulletsPastLifeTime();
+    }
+    public void FirePlayerBullet(ProjectileType type, Vector2 direction)
+    {
+        if (_playerProjectiles.Count > _maxPlayerBullets) return;
+
+        switch (type)
         {
-            if(_playerProjectiles[i].GetComponent<Projectile>().TimeAlive > 1.5f)
+            case ProjectileType.PLAYER_RIFLE:
+                {
+                    Debug.Log("Rifle Shot");
+                    GameObject newProjectile = Instantiate(_rifleBullet, _player.transform.position, Quaternion.identity);
+                    newProjectile.GetComponent<Projectile>().Velocity = newProjectile.GetComponent<Projectile>().InitialSpeed * direction;
+                    newProjectile.GetComponent<Projectile>().ID = _playerProjectiles.Count;
+                    _playerProjectiles.Add(newProjectile);
+                    break;
+                }
+        }
+    }
+    public void DeleteBulletsPastLifeTime()
+    {
+        // Check to remove player bullets...
+        for (int i = 0; i < _playerProjectiles.Count; i++)
+        {
+            if (_playerProjectiles[i].GetComponent<Projectile>().TimeAlive > 3f)
             {
                 RemovePlayerProjectile(i);
             }
         }
     }
-    public void FirePlayerBullet(ProjectileType type, Vector2 direction)
-    {
-        if(_playerProjectiles.Count < _maxPlayerBullets)
-        {
-            switch (type)
-            {
-                case ProjectileType.PLAYER_RIFLE:
-                    {
-                        Debug.Log("Rifle Shot");
-                        GameObject newProjectile = Instantiate(_rifleBullet, _player.transform.position, Quaternion.identity);
-                        newProjectile.GetComponent<Projectile>().Velocity = newProjectile.GetComponent<Projectile>().InitialSpeed * direction;
-                        newProjectile.GetComponent<Projectile>().ID = _playerProjectiles.Count;
-                        _playerProjectiles.Add(newProjectile);
-                        break;
-                    }
-            }
-        }
-    }
-
     public void RemovePlayerProjectile(int _id)
     {
         Destroy(_playerProjectiles[_id]);

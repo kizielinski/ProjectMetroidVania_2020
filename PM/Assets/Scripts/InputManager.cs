@@ -37,64 +37,63 @@ public class InputManager : MonoBehaviour
     }
     public List<KeyCode> DetectInput()
     {
+        if (_dashTimer <= _dashDuration) return null;
         // List of the keys being pressed this frame.
         List<KeyCode> pressed = new List<KeyCode>();
-        if (_dashTimer > _dashDuration)
-        {
-            // Player walks left
-            if (Input.GetKey(KeyCode.A) && !_playerScript.LeftColliding && _playerScript.PlayerState != PlayerState.DASHING)
-            {
-                player.GetComponent<SpriteRenderer>().flipX = true;
-                float force = -horizontalForce;
-                // Player is crouching so apply lesser force and dont return this key press.
-                if (_playerScript.PlayerState == PlayerState.CROUCHING)
-                    force /= 2;
-                player.GetComponent<Player>().ApplyForce(new Vector2(force, 0));
-                pressed.Add(KeyCode.A);
 
-            }
-            // Players walks right
-            else if (Input.GetKey(KeyCode.D) && !_playerScript.RightColliding && _playerScript.PlayerState != PlayerState.DASHING)
-            {
-                player.GetComponent<SpriteRenderer>().flipX = false;
-                float force = horizontalForce;
-                // Player is crouching so apply lesser force and dont return this key press.
-                if (_playerScript.PlayerState == PlayerState.CROUCHING)
-                    force /= 2;
-                player.GetComponent<Player>().ApplyForce(new Vector2(force, 0));
-                pressed.Add(KeyCode.D);
-            }
-            // Player jumps
-            if (_playerScript.PlayerState != PlayerState.JUMPING && _playerScript.PlayerState != PlayerState.CROUCHING && Input.GetKeyDown(KeyCode.W))
-            {
-                player.GetComponent<Player>().ApplyForce(new Vector2(0, jumpForce));
-                Debug.Log("Jump");
-                pressed.Add(KeyCode.W);
-            }
-            // Player presses the dash button
-            if (_playerScript.PlayerState != PlayerState.CROUCHING && _dashTimer > _dashCoolDown && Input.GetKey(KeyCode.LeftShift))
-            {
-                _dashTimer = 0;
-                player.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 10);
-                pressed.Add(KeyCode.LeftShift);
-            }
-            // Player presses the crouch button.
-            if (_playerScript.PlayerState != PlayerState.JUMPING && Input.GetKey(KeyCode.LeftControl))
-            {
-                player.GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
-                pressed.Add(KeyCode.LeftControl);
-            }
-            // Player is crouching but has released the crouch button.
-            else if (_playerScript.PlayerState == PlayerState.CROUCHING)
-            {
-                player.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
-            }
-            // Send a message that a bullet is to be fired from the player.
-            if (_playerScript.PlayerState != PlayerState.HANGING && Input.GetKeyDown(KeyCode.Space))
-            {
-                //TODO: Send event to fire bullet.
-                _projectileManager.FirePlayerBullet(_playerScript.LoadOut, player.GetComponent<SpriteRenderer>().flipX ? new Vector2(-1, 0) : new Vector2(1, 0));
-            }
+        // Player walks left
+        if (Input.GetKey(KeyCode.A) && !_playerScript.LeftColliding && _playerScript.PlayerState != PlayerState.DASHING)
+        {
+            player.GetComponent<SpriteRenderer>().flipX = true;
+            float force = -horizontalForce;
+            // Player is crouching so apply lesser force and dont return this key press.
+            if (_playerScript.PlayerState == PlayerState.CROUCHING)
+                force /= 2;
+            player.GetComponent<Player>().ApplyForce(new Vector2(force, 0));
+            pressed.Add(KeyCode.A);
+
+        }
+        // Players walks right
+        else if (Input.GetKey(KeyCode.D) && !_playerScript.RightColliding && _playerScript.PlayerState != PlayerState.DASHING)
+        {
+            player.GetComponent<SpriteRenderer>().flipX = false;
+            float force = horizontalForce;
+            // Player is crouching so apply lesser force and dont return this key press.
+            if (_playerScript.PlayerState == PlayerState.CROUCHING)
+                force /= 2;
+            player.GetComponent<Player>().ApplyForce(new Vector2(force, 0));
+            pressed.Add(KeyCode.D);
+        }
+        // Player jumps
+        if (_playerScript.PlayerState != PlayerState.JUMPING && _playerScript.PlayerState != PlayerState.CROUCHING && Input.GetKeyDown(KeyCode.W))
+        {
+            player.GetComponent<Player>().ApplyForce(new Vector2(0, jumpForce));
+            Debug.Log("Jump");
+            pressed.Add(KeyCode.W);
+        }
+        // Player presses the dash button
+        if (_playerScript.PlayerState != PlayerState.CROUCHING && _dashTimer > _dashCoolDown && Input.GetKey(KeyCode.LeftShift))
+        {
+            _dashTimer = 0;
+            player.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255, 10);
+            pressed.Add(KeyCode.LeftShift);
+        }
+        // Player presses the crouch button.
+        if (_playerScript.PlayerState != PlayerState.JUMPING && Input.GetKey(KeyCode.LeftControl))
+        {
+            player.GetComponent<SpriteRenderer>().color = new Color(255, 0, 0);
+            pressed.Add(KeyCode.LeftControl);
+        }
+        // Player is crouching but has released the crouch button.
+        else if (_playerScript.PlayerState == PlayerState.CROUCHING)
+        {
+            player.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
+        }
+        // Send a message that a bullet is to be fired from the player.
+        if (_playerScript.PlayerState != PlayerState.HANGING && Input.GetKeyDown(KeyCode.Space))
+        {
+            //TODO: Send event to fire bullet.
+            _projectileManager.FirePlayerBullet(_playerScript.LoadOut, player.GetComponent<SpriteRenderer>().flipX ? new Vector2(-1, 0) : new Vector2(1, 0));
         }
         return pressed;
     }
@@ -108,13 +107,6 @@ public class InputManager : MonoBehaviour
     /// <returns> True or false on E kepress </returns>
     public bool DetectInteraction()
     {
-        if (Input.GetKey(KeyCode.E))
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
+        return Input.GetKey(KeyCode.E);
     }
 }
