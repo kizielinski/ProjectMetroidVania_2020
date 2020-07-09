@@ -129,12 +129,12 @@ public class Object : MonoBehaviour
         ApplyForce(new Vector2(0, _gravity));
     }
     // Make the object stop traveling vertically.
-    protected void StopVerticalMotion()
+    public void StopVerticalMotion()
     {
         _velocity = new Vector2(_velocity.x, 0);
         _acceleration = new Vector2(_acceleration.x, 0);
     }
-    protected void StopHorizontalMotion()
+    public void StopHorizontalMotion()
     {
         _velocity = new Vector2(0, _velocity.y);
         _acceleration = new Vector2(0, _acceleration.y);

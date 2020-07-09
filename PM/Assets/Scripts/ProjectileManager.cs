@@ -40,7 +40,6 @@ public class ProjectileManager : MonoBehaviour
         {
             case ProjectileType.PLAYER_RIFLE:
                 {
-                    Debug.Log("Rifle Shot");
                     GameObject newProjectile = Instantiate(_rifleBullet, _player.transform.position, Quaternion.identity);
                     newProjectile.GetComponent<Projectile>().Velocity = newProjectile.GetComponent<Projectile>().InitialSpeed * direction;
                     newProjectile.GetComponent<Projectile>().ID = _playerProjectiles.Count;
