@@ -221,6 +221,13 @@ public class Player : Object
         List<KeyCode> keys = _inputManager.DetectInput();
         _jumpTimer += Time.deltaTime;
         _dashTimer += Time.deltaTime;
+
+        DetectStateChange(keys);
+        // Apply the calculated forces to the player.
+        Move();
+    }
+    private void DetectStateChange(List<KeyCode> keys)
+    {
         // Determine the current state of the player.
         // 1. Apply appropriate forces.
         // 2. Check for state change.
@@ -236,14 +243,14 @@ public class Player : Object
                         _jumpTimer = 0;
                     }
                     // Player starts to dash.
-                    else if(keys.Contains(KeyCode.LeftShift))
+                    else if (keys.Contains(KeyCode.LeftShift))
                     {
                         _playerState = PlayerState.DASHING;
                         _dashTimer = 0;
                         MaxHorizontalSpeed = _maxDashSpeed;
                     }
                     // Player starts to crouch.
-                    else if(keys.Contains(KeyCode.LeftControl))
+                    else if (keys.Contains(KeyCode.LeftControl))
                     {
                         _playerState = PlayerState.CROUCHING;
                     }
@@ -273,7 +280,7 @@ public class Player : Object
             case PlayerState.WALKING:
                 {
                     // Player starts to jump or starts free falling.
-                    if(keys.Contains(KeyCode.W) || Velocity.y != 0 || !_bottomColliding)
+                    if (keys.Contains(KeyCode.W) || Velocity.y != 0 || !_bottomColliding)
                     {
                         _playerState = PlayerState.JUMPING;
                         _jumpTimer = 0;
@@ -338,9 +345,8 @@ public class Player : Object
                     {
                         ApplyFriction(4);
                     }
-
                     // Transition back to the standing state.
-                    if(!keys.Contains(KeyCode.LeftControl))
+                    if (!keys.Contains(KeyCode.LeftControl))
                     {
                         _playerState = PlayerState.STANDING;
                         _leftColliding = false;
@@ -371,11 +377,7 @@ public class Player : Object
                     }
                     break;
                 }
-
         }
-        //DetectCollisions();
-        // Apply the calculated forces to the player.
-        Move();
     }
     protected override void Move()
     {
