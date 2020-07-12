@@ -6,7 +6,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 public enum PlayerState
 {
@@ -182,8 +181,6 @@ public class Player : Object
     private float _maxDashSpeed;
     private float _colliderOffset = .2f;
     public float ColliderOffSet { get { return _colliderOffset; } }
-    public GridLayout grid;
-    public Tilemap tileMap;
 
     public void Start()
     {
@@ -379,24 +376,6 @@ public class Player : Object
         //DetectCollisions();
         // Apply the calculated forces to the player.
         Move();
-    }
-
-    public Vector2 ResetPlayerAlignment(RaycastHit2D incomingRaycast, RaycastHit2D alternateRay)
-    {
-        //Debug.LogError("New Test");
-        Vector3 tileWorldPos = incomingRaycast.collider != null ? incomingRaycast.point : alternateRay.point;
-        //Debug.LogError(tileWorldPos);
-        tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y);
-        //Debug.LogError(tileWorldPos);
-        // Grid Coordinates of tile.
-        Vector3Int cellGridPos = grid.WorldToCell(tileWorldPos);
-        //Debug.LogError(cellGridPos);
-        // Exact coordinate of tile.  
-        tileWorldPos = grid.CellToWorld(cellGridPos);
-        //Debug.Log(tileWorldPos);
-        // Position the player to be resting flush on the tile.                         
-        //Debug.LogError("End Test");
-        return new Vector2(_position.x, -0.25f);
     }
     protected override void Move()
     {

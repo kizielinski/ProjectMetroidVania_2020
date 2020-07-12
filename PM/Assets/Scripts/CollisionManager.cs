@@ -1,13 +1,16 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Tilemaps;
 
 public class CollisionManager : MonoBehaviour
 {
     private ProjectileManager _projMan;
     private GameObject _playerObj;
     private Player _playerScript;
-  
+
+    public GridLayout grid;
+    public Tilemap tileMap;
 
     // Start is called before the first frame update
     void Start()
@@ -24,7 +27,6 @@ public class CollisionManager : MonoBehaviour
             DetectProjectileCollisions();
 
         DetectPlayerCollision();
-        Debug.Log(_playerObj.transform.position);
     }
 
     private void DetectProjectileCollisions()
@@ -93,7 +95,7 @@ public class CollisionManager : MonoBehaviour
                 {
                     _playerScript.StopVerticalMotion();
                     _playerScript.StopHorizontalMotion();
-                    _playerScript.Position = _playerScript.ResetPlayerAlignment(topRightWallGrabCollision, topLeftWallGrabCollision);
+                    _playerScript.Position = ResetPlayerAlignment(topRightWallGrabCollision, topLeftWallGrabCollision, new Vector2(-1, 0));
                 }
                 break;
             case PlayerState.STANDING:
@@ -109,16 +111,7 @@ public class CollisionManager : MonoBehaviour
                             Debug.Log("Ground Collision");
                             _playerScript.BottomColliding = true;
                             _playerScript.StopVerticalMotion();
-                            // Where player collided with tile.
-                            Vector3 tileWorldPos = bottomLeftColliding.collider != null ? bottomLeftColliding.point : bottomRightColliding.point;
-                            tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y - _playerScript.ColliderOffSet);
-                            // Grid Coordinates of tile.
-                            Vector3Int cellGridPos = _playerScript.grid.WorldToCell(tileWorldPos);
-                            // Exact coordinate of tile.
-                            tileWorldPos = _playerScript.grid.CellToWorld(cellGridPos);
-                            //Debug.Log(tileWorldPos);
-                            // Position the player to be resting flush on the tile.
-                            _playerScript.Position = new Vector2(_playerScript.Position.x, tileWorldPos.y + 1 + _height / 2 + _lengthOfRay / 4);
+                            _playerScript.Position = ResetPlayerAlignment(bottomLeftColliding, bottomRightColliding, new Vector2(0, -1), 1, .5f, .25f);
                         }
                     }
                     else
@@ -134,16 +127,7 @@ public class CollisionManager : MonoBehaviour
                             Debug.Log("Left Collision");
                             _playerScript.LeftColliding = true;
                             _playerScript.StopHorizontalMotion();
-                            // Where player collided with tile.
-                            Vector3 tileWorldPos = leftTopColliding.collider != null ? leftTopColliding.point : leftBottomColliding.point;
-                            tileWorldPos = new Vector2(tileWorldPos.x - _playerScript.ColliderOffSet, tileWorldPos.y);
-                            // Grid Coordinates of tile.
-                            Vector3Int cellGridPos = _playerScript.grid.WorldToCell(tileWorldPos);
-                            // Exact coordinate of tile.
-                            tileWorldPos = _playerScript.grid.CellToWorld(cellGridPos);
-                            //Debug.Log(tileWorldPos);
-                            // Position the player to be resting flush on the tile.
-                            _playerScript.Position = new Vector2(tileWorldPos.x + 1 + _width / 2 + _lengthOfRay / 2, _playerScript.Position.y);
+                            _playerScript.Position = ResetPlayerAlignment(leftTopColliding, leftBottomColliding, new Vector2(-1, 0), 1, .5f, .5f);
                         }
                     }
                     // Not colliding to the left.
@@ -153,22 +137,13 @@ public class CollisionManager : MonoBehaviour
                     }
                     if (rightTopColliding.collider || rightBottomColliding.collider)
                     {
-
+                        // Colliding with a wal to the right of the player.
                         if (!_playerScript.RightColliding)
                         {
                             Debug.Log("Right Collision");
                             _playerScript.RightColliding = true;
                             _playerScript.StopHorizontalMotion();
-                            // Where player collided with tile.
-                            Vector3 tileWorldPos = rightTopColliding.collider != null ? rightTopColliding.point : rightBottomColliding.point;
-                            tileWorldPos = new Vector2(tileWorldPos.x + _playerScript.ColliderOffSet, tileWorldPos.y);
-                            // Grid Coordinates of tile.
-                            Vector3Int cellGridPos = _playerScript.grid.WorldToCell(tileWorldPos);
-                            // Exact coordinate of tile.
-                            tileWorldPos = _playerScript.grid.CellToWorld(cellGridPos);
-                            //Debug.Log(tileWorldPos);
-                            // Position the player to be resting flush on the tile.
-                            _playerScript.Position = new Vector2(tileWorldPos.x - _width / 2 - _lengthOfRay / 2, _playerScript.Position.y);
+                            _playerScript.Position = ResetPlayerAlignment(rightTopColliding, rightBottomColliding, new Vector2(1, 0), 0, -.5f, -.5f);
                         }
                     }
                     // Not colliding to the right.
@@ -178,23 +153,14 @@ public class CollisionManager : MonoBehaviour
                     }
                     if (topLeftColliding.collider || topRightColliding.collider)
                     {
-                        // Colliding with a wal to the right of the player.
+                        // Colliding with a wal to the top of the player.
 
                         if (!_playerScript.TopColliding)
                         {
                             Debug.Log("Top Collision");
                             _playerScript.TopColliding = true;
                             _playerScript.StopVerticalMotion();
-                            // Where player collided with tile.
-                            Vector3 tileWorldPos = topLeftColliding.collider != null ? topLeftColliding.point : topRightColliding.point;
-                            tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y + _playerScript.ColliderOffSet);
-                            // Grid Coordinates of tile.
-                            Vector3Int cellGridPos = _playerScript.grid.WorldToCell(tileWorldPos);
-                            // Exact coordinate of tile.
-                            tileWorldPos = _playerScript.grid.CellToWorld(cellGridPos);
-                            //Debug.Log(tileWorldPos);
-                            // Position the player to be resting flush on the tile.
-                            _playerScript.Position = new Vector2(_playerScript.Position.x, tileWorldPos.y - _height / 2 - _lengthOfRay / 2);
+                            _playerScript.Position = ResetPlayerAlignment(topLeftColliding, topRightColliding, new Vector2(0, 1), 0, -.5f, -.5f);
                         }
                     }
                     if ((topLeftWallGrabCollision.collider || topRightWallGrabCollision.collider) && (!_playerScript.TopColliding && !_playerScript.BottomColliding))
@@ -260,12 +226,39 @@ public class CollisionManager : MonoBehaviour
                 }
         }
     }
-
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="incomingRaycast"></param>
+    /// <param name="alternateRay"></param>
+    /// <param name="direction"></param>
+    /// <param name="tileOffset"> If colliding on the ground or to the left, make this value 1, otherwise make it 0</param>
+    /// <param name="heightOffset"> Player position is in the middle of the sprite so make this value 0.5 to offset the players position half the length of the sprite.</param>
+    /// <param name="rayOffset"> How much to offeset the player position by with respect to lenght of the raycast. Either leave this blank or set to 0.25</param>
+    /// <returns></returns>
+    public Vector2 ResetPlayerAlignment(RaycastHit2D incomingRaycast, RaycastHit2D alternateRay, Vector2 rayCastDirection, float tileOffset = 0, float heightOffset = 0, float rayOffset = 0)
+    {
+        Vector3 tileWorldPos = incomingRaycast.collider != null ? incomingRaycast.point : alternateRay.point;
+        Vector3Int cellGridPos;
+        // Reset lateral displacement.
+        if (rayCastDirection.y != 0)
+        {
+            tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y + (rayCastDirection.y > 0 ? _playerScript.ColliderOffSet : -_playerScript.ColliderOffSet));
+            cellGridPos = grid.WorldToCell(tileWorldPos);
+            tileWorldPos = grid.CellToWorld(cellGridPos);
+            return new Vector2(_playerScript.Position.x, tileWorldPos.y + tileOffset + (_playerScript.Height * heightOffset) + (_playerScript.LengthOfRay * rayOffset));
+        }
+        // Reset longitudinal displacement
+        tileWorldPos = new Vector2(tileWorldPos.x + (rayCastDirection.x > 0 ? _playerScript.ColliderOffSet : -_playerScript.ColliderOffSet), tileWorldPos.y);
+        cellGridPos = grid.WorldToCell(tileWorldPos);
+        tileWorldPos = grid.CellToWorld(cellGridPos);
+        return new Vector2(tileWorldPos.x + tileOffset + (_playerScript.Width * heightOffset) + (_playerScript.LengthOfRay * rayOffset), _playerScript.Position.y);
+    }
     public bool CornerCollision(RaycastHit2D incomingRaycast, RaycastHit2D alternateRay)
     {
         Vector3 rayCast = incomingRaycast.collider != null ? incomingRaycast.point : alternateRay.point;
-        Vector3Int cellGridPos = _playerScript.grid.WorldToCell(rayCast);
-        Vector3 this_tile = _playerScript.grid.CellToWorld(cellGridPos);
+        Vector3Int cellGridPos = grid.WorldToCell(rayCast);
+        Vector3 this_tile = grid.CellToWorld(cellGridPos);
 
         Vector2 upperBounds = new Vector2(this_tile.x + 1, this_tile.y + 0.5f);
         Vector2 lowerBounds = new Vector2(this_tile.x + 0.5f, this_tile.y + 0.5f);
