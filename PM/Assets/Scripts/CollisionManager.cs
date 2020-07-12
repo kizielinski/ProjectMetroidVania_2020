@@ -49,7 +49,6 @@ public class CollisionManager : MonoBehaviour
         float _width = _playerScript.Width;
         float _height = _playerScript.Height;
 
-
         // Position of the four corners of the sprite...
         Vector2 _bottomLeft = new Vector3(_playerObj.transform.position.x - _width / 2, _playerObj.transform.position.y - _height / 2);
         Vector2 _bottomRight = new Vector3(_playerObj.transform.position.x + _width / 2, _playerObj.transform.position.y - _height / 2);
@@ -197,7 +196,9 @@ public class CollisionManager : MonoBehaviour
                             _playerScript.Position = new Vector2(_playerScript.Position.x, tileWorldPos.y - _height / 2 - _lengthOfRay / 2);
                         }
                     }
-                    if ((topLeftWallGrabCollision.collider || topRightWallGrabCollision.collider) && (!_playerScript.TopColliding && !_playerScript.BottomColliding))
+                    if ((topLeftWallGrabCollision.collider || 
+                        topRightWallGrabCollision.collider) && 
+                        (!_playerScript.TopColliding && !_playerScript.BottomColliding))
                     {
                         if ((CornerCollision(topLeftWallGrabCollision, topRightWallGrabCollision) ||
                             CornerCollision(topRightWallGrabCollision, topLeftWallGrabCollision)) &&

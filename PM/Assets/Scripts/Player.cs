@@ -183,8 +183,10 @@ public class Player : Object
     private float _colliderOffset = .2f;
     public float ColliderOffSet { get { return _colliderOffset; } }
     public GridLayout grid;
-    public Tilemap tileMap;
-
+    public Tilemap world;
+    public Tilemap interactables;
+    public Tilemap enemies;
+    public Tilemap visual;
     public void Start()
     {
         base.Start();
