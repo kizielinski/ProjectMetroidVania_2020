@@ -95,7 +95,9 @@ public class CollisionManager : MonoBehaviour
                 {
                     _playerScript.StopVerticalMotion();
                     _playerScript.StopHorizontalMotion();
-                    _playerScript.Position = ResetPlayerAlignment(topRightWallGrabCollision, topLeftWallGrabCollision, new Vector2(-1, 0));
+                    _playerScript.Position = topRightWallGrabCollision.collider != null ? 
+                        ResetPlayerAlignment(topRightWallGrabCollision, topLeftWallGrabCollision, new Vector2(1, 0), 0, -.5f, -.5f) : 
+                        ResetPlayerAlignment(topRightWallGrabCollision, topLeftWallGrabCollision, new Vector2(-1, 0), 1, .5f, .5f);
                 }
                 break;
             case PlayerState.STANDING:
@@ -151,10 +153,9 @@ public class CollisionManager : MonoBehaviour
                     {
                         _playerScript.RightColliding = false;
                     }
+                    // Colliding with ceiling.
                     if (topLeftColliding.collider || topRightColliding.collider)
-                    {
-                        // Colliding with a wal to the top of the player.
-
+                    { 
                         if (!_playerScript.TopColliding)
                         {
                             Debug.Log("Top Collision");
@@ -162,6 +163,11 @@ public class CollisionManager : MonoBehaviour
                             _playerScript.StopVerticalMotion();
                             _playerScript.Position = ResetPlayerAlignment(topLeftColliding, topRightColliding, new Vector2(0, 1), 0, -.5f, -.5f);
                         }
+                    }                    
+                    // Not colliding above.
+                    else
+                    {
+                        _playerScript.TopColliding = false;
                     }
                     if ((topLeftWallGrabCollision.collider || topRightWallGrabCollision.collider) && (!_playerScript.TopColliding && !_playerScript.BottomColliding))
                     {
@@ -174,11 +180,6 @@ public class CollisionManager : MonoBehaviour
                             _playerScript.StopVerticalMotion();
                             _playerScript.HangingCollision = true;
                         }
-                    }
-                    // Not colliding above.
-                    else
-                    {
-                        _playerScript.TopColliding = false;
                     }
                     break;
                 }
