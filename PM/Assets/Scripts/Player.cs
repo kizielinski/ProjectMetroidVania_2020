@@ -6,7 +6,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Tilemaps;
 
 public enum PlayerState
 {
@@ -182,11 +181,9 @@ public class Player : Object
     private float _maxDashSpeed;
     private float _colliderOffset = .2f;
     public float ColliderOffSet { get { return _colliderOffset; } }
+
     public GridLayout grid;
-    public Tilemap world;
-    public Tilemap interactables;
-    public Tilemap enemies;
-    public Tilemap visual;
+
     public void Start()
     {
         base.Start();
@@ -226,6 +223,13 @@ public class Player : Object
         List<KeyCode> keys = _inputManager.DetectInput();
         _jumpTimer += Time.deltaTime;
         _dashTimer += Time.deltaTime;
+
+        DetectStateChange(keys);
+        // Apply the calculated forces to the player.
+        Move();
+    }
+    private void DetectStateChange(List<KeyCode> keys)
+    {
         // Determine the current state of the player.
         // 1. Apply appropriate forces.
         // 2. Check for state change.
@@ -241,14 +245,14 @@ public class Player : Object
                         _jumpTimer = 0;
                     }
                     // Player starts to dash.
-                    else if(keys.Contains(KeyCode.LeftShift))
+                    else if (keys.Contains(KeyCode.LeftShift))
                     {
                         _playerState = PlayerState.DASHING;
                         _dashTimer = 0;
                         MaxHorizontalSpeed = _maxDashSpeed;
                     }
                     // Player starts to crouch.
-                    else if(keys.Contains(KeyCode.LeftControl))
+                    else if (keys.Contains(KeyCode.LeftControl))
                     {
                         _playerState = PlayerState.CROUCHING;
                     }
@@ -278,7 +282,7 @@ public class Player : Object
             case PlayerState.WALKING:
                 {
                     // Player starts to jump or starts free falling.
-                    if(keys.Contains(KeyCode.W) || Velocity.y != 0 || !_bottomColliding)
+                    if (keys.Contains(KeyCode.W) || Velocity.y != 0 || !_bottomColliding)
                     {
                         _playerState = PlayerState.JUMPING;
                         _jumpTimer = 0;
@@ -343,9 +347,8 @@ public class Player : Object
                     {
                         ApplyFriction(4);
                     }
-
                     // Transition back to the standing state.
-                    if(!keys.Contains(KeyCode.LeftControl))
+                    if (!keys.Contains(KeyCode.LeftControl))
                     {
                         _playerState = PlayerState.STANDING;
                         _leftColliding = false;
@@ -376,29 +379,7 @@ public class Player : Object
                     }
                     break;
                 }
-
         }
-        //DetectCollisions();
-        // Apply the calculated forces to the player.
-        Move();
-    }
-
-    public Vector2 ResetPlayerAlignment(RaycastHit2D incomingRaycast, RaycastHit2D alternateRay)
-    {
-        //Debug.LogError("New Test");
-        Vector3 tileWorldPos = incomingRaycast.collider != null ? incomingRaycast.point : alternateRay.point;
-        //Debug.LogError(tileWorldPos);
-        tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y);
-        //Debug.LogError(tileWorldPos);
-        // Grid Coordinates of tile.
-        Vector3Int cellGridPos = grid.WorldToCell(tileWorldPos);
-        //Debug.LogError(cellGridPos);
-        // Exact coordinate of tile.  
-        tileWorldPos = grid.CellToWorld(cellGridPos);
-        //Debug.Log(tileWorldPos);
-        // Position the player to be resting flush on the tile.                         
-        //Debug.LogError("End Test");
-        return new Vector2(_position.x, -0.25f);
     }
     protected override void Move()
     {
