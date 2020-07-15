@@ -2748,8 +2748,6 @@ MonoBehaviour:
   _rayOffSet: 0.15
   _dashDuration: 0.75
   _maxDashSpeed: 20
-  grid: {fileID: 1987325729}
-  tileMap: {fileID: 216668864}
 --- !u!212 &216828980
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3502,6 +3500,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 840b1d55d20b3b643ac6b0e83aa0ddc3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  grid: {fileID: 1987325729}
+  tileMap: {fileID: 216668864}
 --- !u!1 &1975379359
 GameObject:
   m_ObjectHideFlags: 0
