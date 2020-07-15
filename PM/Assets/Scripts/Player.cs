@@ -182,6 +182,8 @@ public class Player : Object
     private float _colliderOffset = .2f;
     public float ColliderOffSet { get { return _colliderOffset; } }
 
+    public GridLayout grid;
+
     public void Start()
     {
         base.Start();
@@ -313,6 +315,7 @@ public class Player : Object
                 }
             case PlayerState.JUMPING:
                 {
+                    Debug.LogWarning(_hangingCollision);
                     if (_hangingCollision)
                     {
                         _playerState = PlayerState.HANGING;
