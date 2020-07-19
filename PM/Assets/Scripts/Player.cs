@@ -217,7 +217,7 @@ public class Player : Object
         _topRight = new Vector3(transform.position.x + _width / 2, transform.position.y + _height / 2);
         _topLeft = new Vector3(transform.position.x - _width / 2, transform.position.y + _height / 2);
 
-        // The previous frames speed.
+        // The previous frames speeded.
         float previousSpeed = this.Velocity.magnitude;
         // Detect input and alter the players acceleration accordingly.
         List<KeyCode> keys = _inputManager.DetectInput();
