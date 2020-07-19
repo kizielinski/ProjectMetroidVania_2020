@@ -3354,6 +3354,7 @@ MonoBehaviour:
   _rayOffSet: 0.15
   _dashDuration: 0.75
   _maxDashSpeed: 20
+  grid: {fileID: 0}
 --- !u!212 &216828980
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -4341,7 +4342,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   grid: {fileID: 1987325729}
-  tileMap: {fileID: 216668864}
+  world: {fileID: 216668864}
+  interactables: {fileID: 193822648}
+  enemies: {fileID: 1657472565}
+  visuals: {fileID: 1103804254}
 --- !u!1 &1975379359
 GameObject:
   m_ObjectHideFlags: 0
