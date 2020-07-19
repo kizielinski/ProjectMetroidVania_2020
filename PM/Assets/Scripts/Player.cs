@@ -50,31 +50,6 @@ public class Player : Object
         get { return _changeInSpeed; }
         set { _changeInSpeed = value; }
     }
-    [SerializeField]
-    protected bool _bottomColliding = false;
-    public bool BottomColliding
-    {
-        get { return _bottomColliding; }
-        set { _bottomColliding = value; }
-    }
-    private bool _leftColliding;
-    public bool LeftColliding
-    {
-        get { return _leftColliding; }
-        set { _leftColliding = value; }
-    }
-    private bool _rightColliding;
-    public bool RightColliding
-    {
-        get { return _rightColliding; }
-        set { _rightColliding = value; }
-    }
-    private bool _topColliding;
-    public bool TopColliding
-    {
-        get { return _topColliding; }
-        set { _topColliding = value; }
-    }
     private bool _hangingCollision;
     public bool HangingCollision
     {
@@ -381,9 +356,5 @@ public class Player : Object
                     break;
                 }
         }
-    }
-    protected override void Move()
-    {
-        base.Move();
     }
 }

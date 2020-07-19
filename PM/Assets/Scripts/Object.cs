@@ -74,7 +74,31 @@ public class Object : MonoBehaviour
     [SerializeField]
     protected float _gravity = -15;
 
-
+    [SerializeField]
+    protected bool _bottomColliding = false;
+    public bool BottomColliding
+    {
+        get { return _bottomColliding; }
+        set { _bottomColliding = value; }
+    }
+    protected bool _leftColliding;
+    public bool LeftColliding
+    {
+        get { return _leftColliding; }
+        set { _leftColliding = value; }
+    }
+    protected bool _rightColliding;
+    public bool RightColliding
+    {
+        get { return _rightColliding; }
+        set { _rightColliding = value; }
+    }
+    protected bool _topColliding;
+    public bool TopColliding
+    {
+        get { return _topColliding; }
+        set { _topColliding = value; }
+    }
     // Start is called before the first frame update
     protected void Start()
     {
@@ -84,7 +108,6 @@ public class Object : MonoBehaviour
         Vector3 extents = GetComponent<SpriteRenderer>().bounds.extents;
         _width = extents.x * 2;
         _height = extents.y * 2;
-
     }
 
     // Update is called once per frame
@@ -94,7 +117,7 @@ public class Object : MonoBehaviour
         ApplyGravity();
     }
     // Move object based on it's current accelertion.
-    protected virtual void Move()
+    protected void Move()
     {
         _velocity += _acceleration * Time.deltaTime;
         // Going faster than max speed.
@@ -108,7 +131,7 @@ public class Object : MonoBehaviour
             _velocity = new Vector2(_velocity.x, (_velocity.y > 0 ? 1 : -1) * _maxVerticalSpeed);
         }
         _position += _velocity * Time.deltaTime;
-        transform.position = _position; 
+        transform.position = _position;
 
         _acceleration = Vector2.zero;
     }
@@ -126,6 +149,7 @@ public class Object : MonoBehaviour
     // Acceleration due to gravity. Directed "Downwards".
     protected void ApplyGravity()
     {
+        if (_bottomColliding) return;
         ApplyForce(new Vector2(0, _gravity));
     }
     // Make the object stop traveling vertically.

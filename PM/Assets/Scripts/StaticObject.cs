@@ -58,11 +58,6 @@ public abstract class StaticObject : Object
         playerScript = player.GetComponent<Player>();
     }
 
-    protected override void Move()
-    {
-        return;
-    }
-
     /// <summary>
     /// Detects if the player is near this object or not
     /// </summary>

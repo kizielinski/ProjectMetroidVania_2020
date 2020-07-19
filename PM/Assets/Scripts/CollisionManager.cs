@@ -14,6 +14,7 @@ public class CollisionManager : MonoBehaviour
     public Tilemap interactables;
     public Tilemap enemies;
     public Tilemap visuals;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,6 +30,7 @@ public class CollisionManager : MonoBehaviour
             DetectProjectileCollisions();
 
         DetectPlayerCollision();
+        DetectEnemyCollisions();
     }
 
     private void DetectProjectileCollisions()
@@ -97,8 +99,8 @@ public class CollisionManager : MonoBehaviour
                     _playerScript.StopVerticalMotion();
                     _playerScript.StopHorizontalMotion();
                     _playerScript.Position = topRightWallGrabCollision.collider != null ?
-                        ResetPlayerAlignment(topRightWallGrabCollision, topLeftWallGrabCollision, new Vector2(1, 0), interactables, 0, -.5f, -.5f) :
-                        ResetPlayerAlignment(topRightWallGrabCollision, topLeftWallGrabCollision, new Vector2(-1, 0), interactables, 1, .5f, .5f);
+                        ResetAlignment(_playerScript, topRightWallGrabCollision, topLeftWallGrabCollision, new Vector2(1, 0), interactables, 0, -.5f, -.5f) :
+                        ResetAlignment(_playerScript, topRightWallGrabCollision, topLeftWallGrabCollision, new Vector2(-1, 0), interactables, 1, .5f, .5f);
                 }
                 break;
             case PlayerState.STANDING:
@@ -114,7 +116,7 @@ public class CollisionManager : MonoBehaviour
                             Debug.Log("Ground Collision");
                             _playerScript.BottomColliding = true;
                             _playerScript.StopVerticalMotion();
-                            _playerScript.Position = ResetPlayerAlignment(bottomLeftColliding, bottomRightColliding, new Vector2(0, -1), world, 1, .5f, .25f);
+                            _playerScript.Position = ResetAlignment(_playerScript, bottomLeftColliding, bottomRightColliding, new Vector2(0, -1), world, 1, .5f, .25f);
                         }
                     }
                     else
@@ -130,7 +132,7 @@ public class CollisionManager : MonoBehaviour
                             Debug.Log("Left Collision");
                             _playerScript.LeftColliding = true;
                             _playerScript.StopHorizontalMotion();
-                            _playerScript.Position = ResetPlayerAlignment(leftTopColliding, leftBottomColliding, new Vector2(-1, 0), world, 1, .5f, .5f);
+                            _playerScript.Position = ResetAlignment(_playerScript, leftTopColliding, leftBottomColliding, new Vector2(-1, 0), world, 1, .5f, .5f);
                         }
                     }
                     // Not colliding to the left.
@@ -146,7 +148,7 @@ public class CollisionManager : MonoBehaviour
                             Debug.Log("Right Collision");
                             _playerScript.RightColliding = true;
                             _playerScript.StopHorizontalMotion();
-                            _playerScript.Position = ResetPlayerAlignment(rightTopColliding, rightBottomColliding, new Vector2(1, 0), world, 0, -.5f, -.5f);
+                            _playerScript.Position = ResetAlignment(_playerScript, rightTopColliding, rightBottomColliding, new Vector2(1, 0), world, 0, -.5f, -.5f);
                         }
                     }
                     // Not colliding to the right.
@@ -162,7 +164,7 @@ public class CollisionManager : MonoBehaviour
                             Debug.Log("Top Collision");
                             _playerScript.TopColliding = true;
                             _playerScript.StopVerticalMotion();
-                            _playerScript.Position = ResetPlayerAlignment(topLeftColliding, topRightColliding, new Vector2(0, 1), world, 0, -.5f, -.5f);
+                            _playerScript.Position = ResetAlignment(_playerScript, topLeftColliding, topRightColliding, new Vector2(0, 1), world, 0, -.5f, -.5f);
                         }
                     }                    
                     // Not colliding above.
@@ -240,7 +242,7 @@ public class CollisionManager : MonoBehaviour
     /// <param name="heightOffset"> Player position is in the middle of the sprite so make this value 0.5 to offset the players position half the length of the sprite.</param>
     /// <param name="rayOffset"> How much to offeset the player position by with respect to lenght of the raycast. Either leave this blank or set to 0.25</param>
     /// <returns></returns>
-    public Vector2 ResetPlayerAlignment(RaycastHit2D incomingRaycast, RaycastHit2D alternateRay, Vector2 rayCastDirection, Tilemap tileMap, float tileOffset = 0, float heightOffset = 0, float rayOffset = 0)
+    public Vector2 ResetAlignment(Object script, RaycastHit2D incomingRaycast, RaycastHit2D alternateRay, Vector2 rayCastDirection, Tilemap tileMap, float tileOffset = 0, float heightOffset = 0, float rayOffset = 0)
     {
         Vector3 tileWorldPos = incomingRaycast.collider != null ? incomingRaycast.point : alternateRay.point;
         Vector3Int cellGridPos;
@@ -250,13 +252,13 @@ public class CollisionManager : MonoBehaviour
             tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y + (rayCastDirection.y > 0 ? _playerScript.ColliderOffSet : -_playerScript.ColliderOffSet));
             cellGridPos = tileMap.WorldToCell(tileWorldPos);
             tileWorldPos = tileMap.CellToWorld(cellGridPos);
-            return new Vector2(_playerScript.Position.x, tileWorldPos.y + tileOffset + (_playerScript.Height * heightOffset) + (_playerScript.LengthOfRay * rayOffset));
+            return new Vector2(script.Position.x, tileWorldPos.y + tileOffset + (script.Height * heightOffset) + (_playerScript.LengthOfRay * rayOffset));
         }
         // Reset longitudinal displacement
         tileWorldPos = new Vector2(tileWorldPos.x + (rayCastDirection.x > 0 ? _playerScript.ColliderOffSet : -_playerScript.ColliderOffSet), tileWorldPos.y);
         cellGridPos = tileMap.WorldToCell(tileWorldPos);
         tileWorldPos = tileMap.CellToWorld(cellGridPos);
-        return new Vector2(tileWorldPos.x + tileOffset + (_playerScript.Width * heightOffset) + (_playerScript.LengthOfRay * rayOffset), _playerScript.Position.y);
+        return new Vector2(tileWorldPos.x + tileOffset + (script.Width * heightOffset) + (_playerScript.LengthOfRay * rayOffset), script.Position.y);
     }
     public bool CornerCollision(RaycastHit2D incomingRaycast, RaycastHit2D alternateRay)
     {
@@ -300,14 +302,118 @@ public class CollisionManager : MonoBehaviour
         Debug.LogWarning("UpperBounds: " + upperBounds);
         Debug.LogWarning("LowerBounds" + lowerBounds);
         Debug.LogWarning("Raycast X: " + rayCast.x + " Raycast Y: " + rayCast.y);
-        if ((rayCast.x <= upperBounds.x && rayCast.x >= lowerBounds.x) &&
-          (rayCast.y <= upperBounds.y && rayCast.y >= lowerBounds.y))
+        return ((rayCast.x <= upperBounds.x && rayCast.x >= lowerBounds.x) &&
+          (rayCast.y <= upperBounds.y && rayCast.y >= lowerBounds.y));
+    }
+    private void DetectEnemyCollisions()
+    {
+        for(int i = 0; i < enemies.transform.childCount; i++)
         {
-            return true;
+            GameObject enemy = enemies.transform.GetChild(i).transform.gameObject;
+            Enemy enemyScript = enemy.GetComponent<Enemy>();
+
+            float _lengthOfRay = _playerScript.LengthOfRay;
+            float _rayOffSet = _playerScript.RayOffSet;
+            float _width = enemy.GetComponent<Enemy>().Width;
+            float _height = enemy.GetComponent<Enemy>().Height;
+
+            // Position of the four corners of the sprite...
+            Vector2 _bottomLeft = new Vector3(enemy.transform.position.x - _width / 2, enemy.transform.position.y - _height / 2);
+            Vector2 _bottomRight = new Vector3(enemy.transform.position.x + _width / 2, enemy.transform.position.y - _height / 2);
+            Vector2 _topRight = new Vector3(enemy.transform.position.x + _width / 2, enemy.transform.position.y + _height / 2);
+            Vector2 _topLeft = new Vector3(enemy.transform.position.x - _width / 2, enemy.transform.position.y + _height / 2);
+
+            // Debug lines pointing downwards representing collision detection
+            Debug.DrawLine(_bottomLeft + new Vector2(_rayOffSet, 0), _bottomLeft + new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
+            Debug.DrawLine(_bottomRight - new Vector2(_rayOffSet, 0), _bottomRight - new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
+            // Debug lines pointing Upwards representing collision detection
+            Debug.DrawLine(_topLeft + new Vector2(_rayOffSet, 0), _topLeft + new Vector2(_rayOffSet, 0) + new Vector2(0, _lengthOfRay), Color.red);
+            Debug.DrawLine(_topRight - new Vector2(_rayOffSet, 0), _topRight - new Vector2(_rayOffSet, 0) + new Vector2(0, _lengthOfRay), Color.red);
+            // Debug lines pointing left representing collision detection
+            Debug.DrawLine(_bottomLeft + new Vector2(0, _rayOffSet), _bottomLeft + new Vector2(0, _rayOffSet) - new Vector2(_lengthOfRay, 0), Color.red);
+            Debug.DrawLine(_topLeft - new Vector2(0, _rayOffSet), _topLeft - new Vector2(0, _rayOffSet) - new Vector2(_lengthOfRay, 0), Color.red);
+            // Debug lines pointing right representing collision detection
+            Debug.DrawLine(_topRight - new Vector2(0, _rayOffSet), _topRight - new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
+            Debug.DrawLine(_bottomRight + new Vector2(0, _rayOffSet), _bottomRight + new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
+
+            //Diagonal Wall Grabbing Debug Lines
+            Debug.DrawLine(_topRight - new Vector2(-_rayOffSet, _rayOffSet), _topRight + new Vector2(_lengthOfRay, -_lengthOfRay));
+            Debug.DrawLine(_topLeft - new Vector2(_rayOffSet, _rayOffSet), _topLeft - new Vector2(_lengthOfRay, _lengthOfRay));
+
+
+            RaycastHit2D topLeftColliding = Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
+            RaycastHit2D topRightColliding = Physics2D.Raycast(_topRight - new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
+            RaycastHit2D leftTopColliding = Physics2D.Raycast(_topLeft - new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay);
+            RaycastHit2D leftBottomColliding = Physics2D.Raycast(_bottomLeft + new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay);
+            RaycastHit2D bottomLeftColliding = Physics2D.Raycast(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay);
+            RaycastHit2D bottomRightColliding = Physics2D.Raycast(_bottomRight - new Vector2(_rayOffSet, 0), new Vector3(0, -1, 0), _lengthOfRay);
+            RaycastHit2D rightTopColliding = Physics2D.Raycast(_topRight - new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
+            RaycastHit2D rightBottomColliding = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
+
+
+            if (bottomLeftColliding ^ bottomRightColliding) enemyScript.ApplyForce(new Vector2(0, 100));
+
+            // Bottom colliding...
+            if (bottomLeftColliding.collider || bottomRightColliding.collider)
+            {
+                if (!enemyScript.BottomColliding)
+                {
+                    enemyScript._jumped = false;
+                    enemyScript.BottomColliding = true;
+                    enemyScript.StopVerticalMotion();
+                    enemyScript.Position = ResetAlignment(enemyScript, bottomLeftColliding, bottomRightColliding, new Vector2(0, -1), world, 1, .5f, .25f);
+                }
+            }
+            else
+            {
+                enemyScript.BottomColliding = false;
+            }
+            // Left colliding...
+            if (leftBottomColliding.collider || leftTopColliding.collider)
+            {
+                if (!enemyScript.LeftColliding)
+                {
+                    enemyScript.LeftColliding = true;
+                    enemyScript.StopHorizontalMotion();
+                    enemyScript.Position = ResetAlignment(enemyScript, leftTopColliding, leftBottomColliding, new Vector2(-1, 0), world, 1, .5f, .5f);
+                }
+            }
+            else
+            {
+                enemyScript.LeftColliding = false;
+            }
+            // Right colliding...
+            if (rightBottomColliding.collider || rightTopColliding.collider)
+            {
+                // Colliding with a wal to the right of the player.
+                if (!enemyScript.RightColliding)
+                {
+                    Debug.Log("Right Collision");
+                    enemyScript.RightColliding = true;
+                    enemyScript.StopHorizontalMotion();
+                    enemyScript.Position = ResetAlignment(enemyScript, rightTopColliding, rightBottomColliding, new Vector2(1, 0), world, 0, -.5f, -.5f);
+                }
+            }
+            else
+            {
+                enemyScript.RightColliding = false;
+            }
+            // Top colliding...
+            if (topLeftColliding.collider || topRightColliding.collider)
+            {
+                if (!enemyScript.TopColliding)
+                {
+                    Debug.Log("Top Collision");
+                    enemyScript.TopColliding = true;
+                    enemyScript.StopVerticalMotion();
+                    enemyScript.Position = ResetAlignment(enemyScript, topLeftColliding, topRightColliding, new Vector2(0, 1), world, 0, -.5f, -.5f);
+                }
+            }
+            else
+            {
+                enemyScript.TopColliding = false;
+            }
         }
-        else
-        {
-            return false;
-        }
+      
     }
 }
