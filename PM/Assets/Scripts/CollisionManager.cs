@@ -42,7 +42,10 @@ public class CollisionManager : MonoBehaviour
 
             if (!hit.collider) continue;
 
-            //TODO: Use collider information to trigger appropriate actions (i.e. enemie dying).
+            if (hit.collider.transform.tag == "Enemy")
+            {
+                Destroy(hit.collider.transform);
+            }
 
             _projMan.RemovePlayerProjectile(g.GetComponent<Projectile>().ID);
             i--;
