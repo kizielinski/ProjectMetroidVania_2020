@@ -37,9 +37,9 @@ public class InputManager : MonoBehaviour
     }
     public List<KeyCode> DetectInput()
     {
-        if (_dashTimer <= _dashDuration) return null;
-        // List of the keys being pressed this frame.
         List<KeyCode> pressed = new List<KeyCode>();
+        if (_dashTimer <= _dashDuration) return pressed;
+        // List of the keys being pressed this frame.
 
         // Player walks left
         if (Input.GetKey(KeyCode.A) && !_playerScript.LeftColliding && _playerScript.PlayerState != PlayerState.DASHING)
