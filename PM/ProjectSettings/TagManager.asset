@@ -5,7 +5,9 @@ TagManager:
   serializedVersion: 2
   tags:
   - GameManager
-  - DialogueManager
+  - DialogueAudio
+  - DIalogueWindow
+  - DialogueWindow
   layers:
   - Default
   - TransparentFX

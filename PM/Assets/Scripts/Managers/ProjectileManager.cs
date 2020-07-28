@@ -19,6 +19,12 @@ public class ProjectileManager : MonoBehaviour
     public GameObject _player;
     public GameObject _rifleBullet;
 
+    // Will Bertiz
+    public List<AudioClip> rifeGunshotSFX;          // List to hold the sfx for gunshots
+
+    [SerializeField]
+    private AudioManager audioManager;  // reference to playerAudioManager for methods
+
     // Start is called before the first frame update
     void Start()
     {

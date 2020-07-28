@@ -14,7 +14,7 @@ using UnityEngine.UI;
 // Reference: https://gamedev.stackexchange.com/questions/138485/how-to-make-a-text-box-where-text-types-smoothly
 // Reference: https://www.youtube.com/watch?v=f-oSXg6_AMQ
 // Unity File IO Reference: https://support.unity3d.com/hc/en-us/articles/115000341143-How-do-I-read-and-write-data-from-a-text-file-
-public class Dialogue : MonoBehaviour
+public class DialogueManager : MonoBehaviour
 {
     public TextMeshProUGUI textDisplay;      // TextMeshPro object to display text
     public TextAsset textFile;               // The text file to use for dialouge
@@ -27,6 +27,8 @@ public class Dialogue : MonoBehaviour
 
     private int index;                       // Index of current sentece that is being displayed
     private bool finished;                   // Determines if text has finished typing
+
+    [SerializeField]
     private AudioSource source;              // AudioSource for the typing SFX
 
     // Start is called before the first frame update
@@ -35,12 +37,11 @@ public class Dialogue : MonoBehaviour
         // Initialize values
         dialogue = new List<string>();
         textDisplay.text = "";
-        source = GetComponent<AudioSource>();
         finished = false;
         done = false;
 
         // Load text file data from a test file
-        LoadDataFromFile();
+        LoadDataFromFile(textFile);
     }
 
     /// <summary>
@@ -83,7 +84,7 @@ public class Dialogue : MonoBehaviour
     /// <summary>
     /// Loads in data from a .txt file
     /// </summary>
-    private void LoadDataFromFile()
+    public void LoadDataFromFile(TextAsset textFile)
     {
         // Create a StringReader to read data from the text file
         StringReader reader = new StringReader(textFile.text);
