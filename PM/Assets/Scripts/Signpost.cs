@@ -21,12 +21,12 @@ public class Signpost : StaticObject
     {
         base.Start();
 
-        inputManager = GameObject.Find("GameManager").GetComponent<InputManager>(); // Get the inputManager from the GameManager
-        dialogueWindow = GameObject.Find("DialogueWindow");                         // Get the dialogueWindow
+        inputManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<InputManager>();        // Get the inputManager from the GameManager
+        dialogueWindow = GameObject.FindGameObjectWithTag("DialogueWindow");                                // Get the dialogueWindow
         dialogueWindow.SetActive(false);
-        dialogueScript = GameObject.Find("Dialogue").GetComponent<Dialogue>();      // Get the dialogue script
-        activated = false;                                                          // Set activated to false to start off the object
-        dialogueScript.textFile = this.textFile;                                    // Set the dialogue script's text file to the one given in this object
+        dialogueScript = GameObject.FindGameObjectWithTag("DialogueManager").GetComponent<Dialogue>();      // Get the dialogue script
+        activated = false;                                                                                  // Set activated to false to start off the object
+        dialogueScript.textFile = this.textFile;                                                            // Set the dialogue script's text file to the one given in this object
     }
 
     // Update is called once per frame

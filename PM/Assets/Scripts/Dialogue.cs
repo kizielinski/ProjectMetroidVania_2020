@@ -19,7 +19,8 @@ public class Dialogue : MonoBehaviour
     public TextMeshProUGUI textDisplay;      // TextMeshPro object to display text
     public TextAsset textFile;               // The text file to use for dialouge
     public List<string> dialogue;            // Array of dialouge that will be shown to the player
-    public float typingSpeed;                // Speed of typing
+
+    public float typingSpeed = .1f;          // Speed of typing
     
     private bool done;                       // Determines if the entire dialogue is finished or not
     public bool Done { get { return done; } set { done = value; }  }

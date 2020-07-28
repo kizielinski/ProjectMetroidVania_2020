@@ -3430,8 +3430,8 @@ MonoBehaviour:
   _maxHorizontalSpeed: 5
   _maxVerticalSpeed: 10
   _gravity: -15
-  _lengthOfRay: 0.1
   _bottomColliding: 0
+  _lengthOfRay: 0.1
   _playerState: 0
   _initialMaxHorizontalSpeed: 5
   minX: 0
@@ -3727,6 +3727,11 @@ PrefabInstance:
     - target: {fileID: 7756883308396029335, guid: 51f30b16871dd8b4c876ca507b3920a9,
         type: 3}
       propertyPath: m_Name
+      value: GameManager
+      objectReference: {fileID: 0}
+    - target: {fileID: 7756883308396029335, guid: 51f30b16871dd8b4c876ca507b3920a9,
+        type: 3}
+      propertyPath: m_TagString
       value: GameManager
       objectReference: {fileID: 0}
     - target: {fileID: 7756883308396029336, guid: 51f30b16871dd8b4c876ca507b3920a9,
@@ -4088,6 +4093,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3304336941900762765, guid: 77d74195560c19e4ba83e77f4997e6df,
+        type: 3}
+      propertyPath: textFile
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 5168864498413225992, guid: 77d74195560c19e4ba83e77f4997e6df,
         type: 3}

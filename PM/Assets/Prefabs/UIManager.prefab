@@ -617,10 +617,15 @@ PrefabInstance:
       propertyPath: textDisplay
       value: 
       objectReference: {fileID: 6649292921955151478}
+    - target: {fileID: 294577411126469374, guid: 84386dbea6b4a1e4c93ee664f22ce547,
+        type: 3}
+      propertyPath: textFile
+      value: 
+      objectReference: {fileID: 0}
     - target: {fileID: 6750029451728798696, guid: 84386dbea6b4a1e4c93ee664f22ce547,
         type: 3}
       propertyPath: m_Name
-      value: Dialogue
+      value: DialogueManager
       objectReference: {fileID: 0}
     - target: {fileID: 7200737490850364465, guid: 84386dbea6b4a1e4c93ee664f22ce547,
         type: 3}
