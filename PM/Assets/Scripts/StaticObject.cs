@@ -49,8 +49,8 @@ public abstract class StaticObject : Object
         base.Start();
 
         // Initial values of the static object
-        minX = transform.position.x;
-        minY = transform.position.y;
+        minX = transform.position.x - _width / 2;
+        minY = transform.position.y - _height / 2;
         maxX = minX + _width;
         maxY = minY + _height;
 
@@ -83,5 +83,8 @@ public abstract class StaticObject : Object
     /// <summary>
     /// The actions this object will do when the player interacts with this object
     /// </summary>
-    public abstract void Interaction();
+    public virtual void Interaction()
+    {
+        Debug.Log("The player has interacted with: " + gameObject.name);
+    }
 }

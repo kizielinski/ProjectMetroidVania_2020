@@ -4,7 +4,10 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Enemy
+  - GameManager
+  - DialogueAudio
+  - DIalogueWindow
+  - DialogueWindow
   layers:
   - Default
   - TransparentFX

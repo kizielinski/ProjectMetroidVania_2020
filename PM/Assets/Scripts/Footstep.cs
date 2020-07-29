@@ -10,24 +10,26 @@ using UnityEngine;
 
 public class Footstep : MonoBehaviour
 {
+    [SerializeField]
+    private Player player;
+
+    [SerializeField]
     private AudioSource source;
 
     [SerializeField]
     private List<AudioClip> footstepSounds;
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        source = GetComponent<AudioSource>();
-    }
 
     /// <summary>
     /// The funciton used to play sound effects on an object's animator
     /// </summary>
     public void Step()
     {
-        AudioClip stepSound = GetRandomClip();
-        source.PlayOneShot(stepSound);
+        if (player.PlayerState == PlayerState.WALKING)
+        {
+            AudioClip stepSound = GetRandomClip();
+            source.PlayOneShot(stepSound);
+        }
+
     }
 
     /// <summary>

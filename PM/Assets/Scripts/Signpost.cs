@@ -14,19 +14,19 @@ public class Signpost : StaticObject
     private bool activated;             // Determines if the object has already been interacted with before. Prevents multiple instances of one action when holding down a key
     private InputManager inputManager;  // Reference to the input manager to handle inputs
     private GameObject dialogueWindow;  // Reference to the dialogueWindow to control when it appears/dissapears
-    private Dialogue dialogueScript;    // Reference to the dialogue script 
+    private DialogueManager dialogueManager;    // Reference to the dialogue script 
 
     // Start is called before the first frame update
     protected override void Start()
     {
         base.Start();
 
-        inputManager = GameObject.Find("GameManager").GetComponent<InputManager>(); // Get the inputManager from the GameManager
-        dialogueWindow = GameObject.Find("DialogueWindow");                         // Get the dialogueWindow
+        inputManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<InputManager>();        // Get the inputManager from the GameManager
+        dialogueWindow = GameObject.FindGameObjectWithTag("DialogueWindow");                                // Get the dialogueWindow
         dialogueWindow.SetActive(false);
-        dialogueScript = GameObject.Find("Dialogue").GetComponent<Dialogue>();      // Get the dialogue script
-        activated = false;                                                          // Set activated to false to start off the object
-        dialogueScript.textFile = this.textFile;                                    // Set the dialogue script's text file to the one given in this object
+        dialogueManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DialogueManager>();      // Get the dialogue script
+        activated = false;                                                                                  // Set activated to false to start off the object
+        dialogueManager.textFile = this.textFile;                                                            // Set the dialogue script's text file to the one given in this object
     }
 
     // Update is called once per frame
@@ -51,11 +51,11 @@ public class Signpost : StaticObject
         }
 
         // If the dialogue is done, then hide the dialogueWindow again
-        if (dialogueScript.Done == true)
+        if (dialogueManager.Done == true)
         {
             activated = false;
             dialogueWindow.SetActive(false);
-            dialogueScript.Done = false;
+            dialogueManager.Done = false;
         }
     }
 
@@ -64,10 +64,12 @@ public class Signpost : StaticObject
     /// </summary>
     public override void Interaction()
     {
+        dialogueManager.LoadDataFromFile(textFile);
+
         // Unhide the dialogueWindow and reveal the dialogue window
         dialogueWindow.SetActive(true);
 
         // Start the typing coroutine in Dialogue
-        StartCoroutine(dialogueScript.Type());
+        StartCoroutine(dialogueManager.Type());
     }
 }
