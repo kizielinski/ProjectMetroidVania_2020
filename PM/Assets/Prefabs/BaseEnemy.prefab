@@ -104,4 +104,8 @@ MonoBehaviour:
   _maxHorizontalSpeed: 5
   _maxVerticalSpeed: 10
   _gravity: -15
-  _player: {fileID: 0}
+  _bottomColliding: 0
+  _jumpTimer: 0
+  _jumped: 0
+  _jumpForce: 0
+  _player: {fileID: 8102043499205011117, guid: 6ecbc2230fe480b47a6fae8f572cdfc8, type: 3}

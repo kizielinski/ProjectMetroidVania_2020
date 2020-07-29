@@ -42,9 +42,10 @@ public class CollisionManager : MonoBehaviour
 
             if (!hit.collider) continue;
 
-            if (hit.collider.transform.tag == "Enemy")
+            if (hit.collider.gameObject.transform.tag == "Enemy")
             {
-                Destroy(hit.collider.transform);
+                Debug.Log("Enemy hit");
+                Destroy(hit.collider.gameObject);
             }
 
             _projMan.RemovePlayerProjectile(g.GetComponent<Projectile>().ID);
