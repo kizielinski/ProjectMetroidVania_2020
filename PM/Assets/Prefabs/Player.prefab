@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 162434091834531071}
   - component: {fileID: 162434091834531068}
   - component: {fileID: 162434091834531067}
+  - component: {fileID: 4410370978017747439}
   - component: {fileID: 162434091834531066}
   m_Layer: 0
   m_Name: Player
@@ -124,6 +125,24 @@ MonoBehaviour:
   _dashDuration: 0.75
   _maxDashSpeed: 20
   grid: {fileID: 0}
+--- !u!114 &4410370978017747439
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 162434091834531065}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbdf4c5f65090044cac7a9018bfcdd5d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  player: {fileID: 162434091834531067}
+  source: {fileID: 6426893222988851794}
+  footstepSounds:
+  - {fileID: 8300000, guid: af4f4222ea67a2141a2b9e22d2210088, type: 3}
+  - {fileID: 8300000, guid: e8dfa49dab9b2774d918aba1bee14db0, type: 3}
+  - {fileID: 8300000, guid: a3caca3376e17734f8fbb91530a15d62, type: 3}
 --- !u!95 &162434091834531066
 Animator:
   serializedVersion: 3
@@ -190,7 +209,7 @@ AudioSource:
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 4705012605125507768, guid: b6123ba59272235419765f41d6698379,
     type: 2}
-  m_audioClip: {fileID: 8300000, guid: fb31bd2f674714040a1a39b61024f4bd, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 1
   m_Volume: 1
   m_Pitch: 1
@@ -198,7 +217,7 @@ AudioSource:
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 128
+  Priority: 174
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500

@@ -83,5 +83,8 @@ public abstract class StaticObject : Object
     /// <summary>
     /// The actions this object will do when the player interacts with this object
     /// </summary>
-    public abstract void Interaction();
+    public virtual void Interaction()
+    {
+        Debug.Log("The player has interacted with: " + gameObject.name);
+    }
 }
