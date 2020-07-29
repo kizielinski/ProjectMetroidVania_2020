@@ -49,8 +49,8 @@ public abstract class StaticObject : Object
         base.Start();
 
         // Initial values of the static object
-        minX = transform.position.x;
-        minY = transform.position.y;
+        minX = transform.position.x - _width / 2;
+        minY = transform.position.y - _height / 2;
         maxX = minX + _width;
         maxY = minY + _height;
 
