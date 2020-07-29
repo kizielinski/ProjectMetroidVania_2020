@@ -15,8 +15,6 @@ public class AudioArea : StaticObject
     public float[] weights;                 // Weights for sound balancing
 
     [SerializeField]
-    private bool isNormal;                  // Is the currentSnapshot normal (no effects applied)?
-    [SerializeField]
     private bool prevFrame;
     [SerializeField]
     private bool currentFrame;
@@ -24,51 +22,23 @@ public class AudioArea : StaticObject
     protected virtual void Start()
     {
         base.Start();
-
-        isNormal = true;
     }
 
     protected virtual void Update()
     {
-        //// If the player is within the area, the current snapshot will not be normal, therefore isNormal = false
-        //isNormal = !DetectPlayer();
-
-
-        //if (OnEnter())
-        //{
-        //    // Check if the snapshot is normal or not, then 
-        //    if (!isNormal)
-        //    {
-        //        weights[0] = .20f;
-        //        weights[1] = .80f;
-        //        mixer.TransitionToSnapshots(snapshots, weights, 1.0f);
-        //        Debug.Log("Using Above snapshot");
-        //    }
-        //    else
-        //    {
-        //        weights[0] = 1f;
-        //        weights[1] = 0f;
-        //        mixer.TransitionToSnapshots(snapshots, weights, 1.0f);
-        //        Debug.Log("Using Normal snapshot");
-        //    }
-        //}
-
-        // CHange color of object to see if collision is working
         if (DetectPlayer())
         {
-            gameObject.GetComponent<Renderer>().material.color = Color.red;
+            weights[0] = 0;
+            weights[1] = 1;
+            mixer.TransitionToSnapshots(snapshots, weights, .5f);
+            Debug.Log("Using Reveb snapshot");
         }
         else
         {
-            gameObject.GetComponent<Renderer>().material.color = Color.green;
+            weights[0] = 1f;
+            weights[1] = 0f;
+            mixer.TransitionToSnapshots(snapshots, weights, .5f);
+            Debug.Log("Using Normal snapshot");
         }
-    }
-
-    private bool OnEnter()
-    {
-        prevFrame = currentFrame;
-        currentFrame = DetectPlayer();
-
-        return !(prevFrame = currentFrame);
     }
 }
