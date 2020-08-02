@@ -38,7 +38,7 @@ public class Entity : Object
         Debug.Log("Performing Seek");
         return true;
     }
-    protected bool SeekJump(Vector2 seekPos, float tooClose)
+    protected bool JumpTo(Vector2 seekPos, float tooClose)
     {
         float squaredDist = Mathf.Pow(this.transform.position.x - seekPos.x, 2) + Mathf.Pow(this.transform.position.y - seekPos.y, 2);
         if (squaredDist < Mathf.Pow(tooClose, 2))
@@ -46,17 +46,19 @@ public class Entity : Object
             return false;
         }
         int direction = seekPos.x - this.transform.position.x > 0 ? 1 : -1;
-        return Jump(new Vector2(direction * _jumpForce / 3, _jumpForce));
+        return Jump(new Vector2(direction * _jumpForce / 3, _jumpForce * 1.1f));
 
     }
     protected bool Jump(Vector2 force)
     {
+        // Currently jumping, or cooling down from a jump, so return and do nothing.
         if (_jumped || _jumpTimer < 3f)
         {
             return false;
         }
         _jumped = true;
-        if ((_leftColliding && force.x < 0) || (_rightColliding && force.x > 0)) force.x = _leftColliding?  _jumpForce / 6 : -(_jumpForce / 6);
+        // Colliding with a wall? No problem... make a small jump in the opposite direction!
+        if ((_leftColliding && force.x < 0) || (_rightColliding && force.x > 0)) force.x = _leftColliding ?  _jumpForce / 6 : -(_jumpForce / 6);
         ApplyForce(force);
         _jumpTimer = 0;
         return true;

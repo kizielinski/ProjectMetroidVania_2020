@@ -51,7 +51,7 @@ public class Signpost : StaticObject
         }
 
         // If the dialogue is done, then hide the dialogueWindow again
-        if (dialogueManager.Done == true)
+        if (dialogueManager && dialogueManager.Done == true)
         {
             activated = false;
             dialogueWindow.SetActive(false);

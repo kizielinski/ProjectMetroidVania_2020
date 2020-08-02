@@ -26,12 +26,17 @@ public class Enemy : Entity
         Move();
         ApplyGravity();
 
-        if(!this.SeekJump(_player.transform.position, _seekRadius))
+        // Enemy fails to jump to the player, i.e. the enemy is too close to the player...
+        if(!this.JumpTo(_player.transform.position, _seekRadius))
         {
+            // Enemy has slowed down to a stop.
             if (Mathf.Abs(this._velocity.x) < .1f) StopHorizontalMotion();
+            // Otherwise apply friction.
             else if(BottomColliding) ApplyFriction(3);
+            // Not currently jumping...
             if (!_jumped)
             {
+                // Attempt a vertical jump.
                 Jump(new Vector2(0, _jumpForce));
             }
         }
