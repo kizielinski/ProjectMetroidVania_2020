@@ -13,7 +13,6 @@ public class Entity : Object
         _jumped = false;
         _jumpTimer = 3;
         _jumpForce = 1200;
-
     }
     // Update is called once per frame
     //TODO: implement shared properties and functionality between enemies, collectibles and npcs.
