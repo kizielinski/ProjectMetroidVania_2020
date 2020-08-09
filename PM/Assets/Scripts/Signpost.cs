@@ -27,6 +27,7 @@ public class Signpost : StaticObject
         dialogueManager = GameObject.FindGameObjectWithTag("GameManager").GetComponent<DialogueManager>();      // Get the dialogue script
         activated = false;                                                                                  // Set activated to false to start off the object
         dialogueManager.textFile = this.textFile;                                                            // Set the dialogue script's text file to the one given in this object
+        dialogueManager.source = gameObject.GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -64,6 +65,7 @@ public class Signpost : StaticObject
     /// </summary>
     public override void Interaction()
     {
+        dialogueManager.ClearData();
         dialogueManager.LoadDataFromFile(textFile);
 
         // Unhide the dialogueWindow and reveal the dialogue window

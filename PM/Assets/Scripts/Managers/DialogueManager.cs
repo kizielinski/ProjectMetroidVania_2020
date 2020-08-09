@@ -28,8 +28,7 @@ public class DialogueManager : MonoBehaviour
     private int index;                       // Index of current sentece that is being displayed
     private bool finished;                   // Determines if text has finished typing
 
-    [SerializeField]
-    private AudioSource source;              // AudioSource for the typing SFX
+    public AudioSource source;              // AudioSource for the typing SFX
 
     // Start is called before the first frame update
     private void Start()
@@ -73,6 +72,7 @@ public class DialogueManager : MonoBehaviour
             // This stops coroutine/threading issues with jumbled up text 
             else
             {
+                source.Stop();
                 break;
             }
 
@@ -109,6 +109,15 @@ public class DialogueManager : MonoBehaviour
                 break;
             }
         }
+    }
+
+    /// <summary>
+    /// Clears dialouge data from the object
+    /// </summary>
+    public void ClearData()
+    {
+        dialogue.Clear();
+        index = 0;
     }
 
     /// <summary>
