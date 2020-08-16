@@ -12,25 +12,9 @@ public class Object : MonoBehaviour
 {
     [SerializeField]
     protected float _mass;
-    public float Mass
-    {
-        get { return _mass; }
-        set { _mass = value;  }   
-    }
-    [SerializeField]
-    protected Vector2 _position;
-    public Vector2 Position
-    {
-        get { return _position; }
-        set { _position = value; }
-    }
-    [SerializeField]
-    protected Vector2 _velocity;
-    public Vector2 Velocity
-    {
-        get { return _velocity; }
-        set { _velocity = value; }
-    }
+    public float Mass { get; set; }
+    public Vector2 Position { get; set; }
+    public Vector2 Velocity { get; set; }
     [SerializeField]
     protected Vector2 _acceleration;
     public Vector2 Acceleration
@@ -45,18 +29,9 @@ public class Object : MonoBehaviour
         get { return _isMoving; }
         set { _isMoving = value; }
     }
-    public float _width;
-    public float Width
-    {
-        get { return _width; }
-        set { _width = value; }
-    }
-    public float _height;
-    public float Height
-    {
-        get { return _height; }
-        set { _height = value; }
-    }
+
+    public float Width { get; set; }
+    public float Height { get; set; }
     [SerializeField]
     private float _maxHorizontalSpeed;
     public float MaxHorizontalSpeed
@@ -102,12 +77,13 @@ public class Object : MonoBehaviour
     // Start is called before the first frame update
     protected void Start()
     {
-        _position = transform.position;
+        Position = transform.position;
         //_velocity = Vector2.zero;
         _acceleration = Vector2.zero;
         Vector3 extents = GetComponent<SpriteRenderer>().bounds.extents;
-        _width = extents.x * 2;
-        _height = extents.y * 2;
+        Width = extents.x * 2;
+        Height = extents.y * 2;
+        Debug.Log(this.name + " height is " + Height);
     }
 
     // Update is called once per frame
@@ -119,19 +95,19 @@ public class Object : MonoBehaviour
     // Move object based on it's current accelertion.
     protected void Move()
     {
-        _velocity += _acceleration * Time.deltaTime;
+        Velocity += _acceleration * Time.deltaTime;
         // Going faster than max speed.
-        if(Mathf.Abs(_velocity.x) > _maxHorizontalSpeed)
+        if(Mathf.Abs(Velocity.x) > _maxHorizontalSpeed)
         {
             // Clamp velocity.
-            _velocity = new Vector2((_velocity.x > 0 ? 1 : -1) * _maxHorizontalSpeed, _velocity.y);
+            Velocity = new Vector2((Velocity.x > 0 ? 1 : -1) * _maxHorizontalSpeed, Velocity.y);
         }
-        if(Mathf.Abs(_velocity.y) > _maxVerticalSpeed)
+        if(Mathf.Abs(Velocity.y) > _maxVerticalSpeed)
         {
-            _velocity = new Vector2(_velocity.x, (_velocity.y > 0 ? 1 : -1) * _maxVerticalSpeed);
+            Velocity = new Vector2(Velocity.x, (Velocity.y > 0 ? 1 : -1) * _maxVerticalSpeed);
         }
-        _position += _velocity * Time.deltaTime;
-        transform.position = _position;
+        Position += Velocity * Time.deltaTime;
+        transform.position = Position;
 
         _acceleration = Vector2.zero;
     }
@@ -144,7 +120,7 @@ public class Object : MonoBehaviour
     // @param coeff - the coefficient of kinetic friction.
     protected void ApplyFriction(float coeff)
     {
-        ApplyForce(_velocity * -coeff * _mass);
+        ApplyForce(Velocity * -coeff * _mass);
     }
     // Acceleration due to gravity. Directed "Downwards".
     protected void ApplyGravity()
@@ -155,12 +131,12 @@ public class Object : MonoBehaviour
     // Make the object stop traveling vertically.
     public void StopVerticalMotion()
     {
-        _velocity = new Vector2(_velocity.x, 0);
+        Velocity = new Vector2(Velocity.x, 0);
         _acceleration = new Vector2(_acceleration.x, 0);
     }
     public void StopHorizontalMotion()
     {
-        _velocity = new Vector2(0, _velocity.y);
+        Velocity = new Vector2(0, Velocity.y);
         _acceleration = new Vector2(0, _acceleration.y);
     }
 }

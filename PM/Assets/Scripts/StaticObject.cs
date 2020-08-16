@@ -49,10 +49,10 @@ public abstract class StaticObject : Object
         base.Start();
 
         // Initial values of the static object
-        minX = transform.position.x - _width / 2;
-        minY = transform.position.y - _height / 2;
-        maxX = minX + _width;
-        maxY = minY + _height;
+        minX = transform.position.x - Width / 2;
+        minY = transform.position.y - Height / 2;
+        maxX = minX + Width;
+        maxY = minY + Height;
 
         // Get the player script
         playerScript = player.GetComponent<Player>();

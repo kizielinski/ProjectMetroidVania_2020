@@ -27,20 +27,19 @@ public class CollisionManager : MonoBehaviour
     void Update()
     {
         if(_projMan.PlayerProjectiles.Count > 0)
-            DetectProjectileCollisions();
+            DetectPlayerProjectileCollisions();
 
         DetectPlayerCollision();
         DetectEnemyCollisions();
     }
 
-    private void DetectProjectileCollisions()
+    private void DetectPlayerProjectileCollisions()
     {
         for(int i = 0; i < _projMan.PlayerProjectiles.Count; i++) 
         {
             GameObject g = _projMan.PlayerProjectiles[i];
             RaycastHit2D hit = Physics2D.Raycast(g.transform.position, g.GetComponent<Projectile>().Velocity.normalized, .2f);
-
-            if (!hit.collider) continue;
+            if (!hit.collider || hit.collider.gameObject.transform.tag == "Player") continue;
 
             if (hit.collider.gameObject.transform.tag == "Enemy")
             {
@@ -123,10 +122,11 @@ public class CollisionManager : MonoBehaviour
             case PlayerState.DASHING:
             case PlayerState.JUMPING:
                 {
+                    string tag;
                     // Colliding with the ground, stop the player from moving vertically.
-                    if ((_playerScript.JumpTimer > .1f) && (bottomLine.collider) && bottomLine.collider.gameObject.tag != "Player")
+                    if (_playerScript.JumpTimer > .1f && bottomLine.collider && (tag = bottomLine.collider.gameObject.tag) != "Player")
                     {
-                        if (!_playerScript.BottomColliding)
+                        if (!_playerScript.BottomColliding && tag != "Enemy");
                         {
                             Debug.Log("Ground Collision");
                             _playerScript.BottomColliding = true;
@@ -138,11 +138,11 @@ public class CollisionManager : MonoBehaviour
                     {
                         _playerScript.BottomColliding = false;
                     }
-                    if ((leftLine.collider && leftLine.collider.gameObject.tag != "Player"))
+                    if ((leftLine.collider && (tag = leftLine.collider.gameObject.tag) != "Player"))
                     {
                         // Colliding with a wall to the left of the player.
 
-                        if (!_playerScript.LeftColliding)
+                        if (!_playerScript.LeftColliding && tag != "Enemy")
                         {
                             Debug.Log("Left Collision");
                             _playerScript.LeftColliding = true;
@@ -155,10 +155,10 @@ public class CollisionManager : MonoBehaviour
                     {
                         _playerScript.LeftColliding = false;
                     }
-                    if (rightLine.collider && rightLine.collider.gameObject.tag != "Player")
+                    if (rightLine.collider && (tag = rightLine.collider.gameObject.tag) != "Player")
                     {
                         // Colliding with a wal to the right of the player.
-                        if (!_playerScript.RightColliding)
+                        if (!_playerScript.RightColliding && tag != "Enemy")
                         {
                             Debug.Log("Right Collision");
                             _playerScript.RightColliding = true;
@@ -172,9 +172,9 @@ public class CollisionManager : MonoBehaviour
                         _playerScript.RightColliding = false;
                     }
                     // Colliding with ceiling.
-                    if ((topLine.collider && topLine.collider.gameObject.tag != "Player"))
+                    if ((topLine.collider && (tag = topLine.collider.gameObject.tag) != "Player"))
                     { 
-                        if (!_playerScript.TopColliding)
+                        if (!_playerScript.TopColliding && tag != "Enemy")
                         {
                             Debug.Log("Top Collision");
                             _playerScript.TopColliding = true;
@@ -352,6 +352,11 @@ public class CollisionManager : MonoBehaviour
             Debug.DrawLine(_topRight - new Vector2(0, _rayOffSet), _topRight - new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
             Debug.DrawLine(_bottomRight + new Vector2(0, _rayOffSet), _bottomRight + new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
 
+            Debug.DrawLine(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector2(_bottomLeft.x + _width, _bottomLeft.y), Color.green);
+            Debug.DrawLine(_topLeft + new Vector2(_rayOffSet, 0), new Vector2(_topLeft.x + _width, _topLeft.y), Color.green);
+            Debug.DrawLine(_bottomLeft + new Vector2(0, _rayOffSet), new Vector2(_bottomLeft.x, _bottomLeft.y + _height), Color.green);
+            Debug.DrawLine(_bottomRight + new Vector2(0, _rayOffSet), new Vector2(_bottomRight.x, _bottomRight.y + _height), Color.green);
+
             //Diagonal Wall Grabbing Debug Lines
             Debug.DrawLine(_topRight - new Vector2(-_rayOffSet, _rayOffSet), _topRight + new Vector2(_lengthOfRay, -_lengthOfRay));
             Debug.DrawLine(_topLeft - new Vector2(_rayOffSet, _rayOffSet), _topLeft - new Vector2(_lengthOfRay, _lengthOfRay));
@@ -366,19 +371,24 @@ public class CollisionManager : MonoBehaviour
             RaycastHit2D rightTopColliding = Physics2D.Raycast(_topRight - new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
             RaycastHit2D rightBottomColliding = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
 
+            RaycastHit2D bottomLine = Physics2D.Raycast(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector2(1, 0), _width - (2 * _rayOffSet));
+            RaycastHit2D topLine = Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector2(1, 0), _width - (2 * _rayOffSet));
+            RaycastHit2D leftLine = Physics2D.Raycast(_bottomLeft + new Vector2(0, _rayOffSet), new Vector2(0, 1), _height);
+            RaycastHit2D rightLine = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector2(0, 1), _height);
 
-            if (bottomLeftColliding ^ bottomRightColliding) enemyScript.ApplyForce(new Vector2(0, 100));
 
+            //if (bottomLeftColliding ^ bottomRightColliding) enemyScript.ApplyForce(new Vector2(0, 100));
+
+            string tag;
             // Bottom colliding...
-            if ((bottomLeftColliding.collider && bottomLeftColliding.collider.gameObject.tag != "Enemy") 
-                || (bottomRightColliding.collider && bottomRightColliding.collider.gameObject.tag != "Enemy"))
+            if ((bottomLine.collider && (tag = bottomLine.collider.gameObject.tag) != "Enemy"))
             {
-                if (!enemyScript.BottomColliding)
+                if (!enemyScript.BottomColliding && tag != "Player")
                 {
                     enemyScript._jumped = false;
                     enemyScript.BottomColliding = true;
                     enemyScript.StopVerticalMotion();
-                    enemyScript.Position = ResetAlignment(enemyScript, bottomLeftColliding, bottomRightColliding, new Vector2(0, -1), world, 1, .5f, .25f);
+                    enemyScript.Position = ResetAlignment(enemyScript, bottomLine, bottomLine, new Vector2(0, -1), world, 1, .5f, .25f);
                 }
             }
             else
@@ -386,14 +396,13 @@ public class CollisionManager : MonoBehaviour
                 enemyScript.BottomColliding = false;
             }
             // Left colliding...
-            if ((leftBottomColliding.collider && leftBottomColliding.collider.gameObject.tag != "Enemy")
-                || (leftTopColliding.collider && leftTopColliding.collider.gameObject.tag != "Enemy"))
+            if ((leftLine.collider && (tag = leftLine.collider.gameObject.tag) != "Enemy"))
             {
-                if (!enemyScript.LeftColliding)
+                if (!enemyScript.LeftColliding && tag != "Player")
                 {
                     enemyScript.LeftColliding = true;
                     enemyScript.StopHorizontalMotion();
-                    enemyScript.Position = ResetAlignment(enemyScript, leftTopColliding, leftBottomColliding, new Vector2(-1, 0), world, 1, .5f, .5f);
+                    enemyScript.Position = ResetAlignment(enemyScript, leftLine, leftLine, new Vector2(-1, 0), world, 1, .5f, .5f);
                 }
             }
             else
@@ -401,16 +410,15 @@ public class CollisionManager : MonoBehaviour
                 enemyScript.LeftColliding = false;
             }
             // Right colliding...
-            if ((rightBottomColliding.collider && rightBottomColliding.collider.gameObject.tag != "Enemy") 
-                || (rightTopColliding.collider && rightTopColliding.collider.gameObject.tag != "Enemy"))
+            if ((rightLine.collider && (tag = rightLine.collider.gameObject.tag) != "Enemy"))
             {
                 // Colliding with a wal to the right of the player.
-                if (!enemyScript.RightColliding)
+                if (!enemyScript.RightColliding && tag != "Player")
                 {
                     Debug.Log("Right Collision");
                     enemyScript.RightColliding = true;
                     enemyScript.StopHorizontalMotion();
-                    enemyScript.Position = ResetAlignment(enemyScript, rightTopColliding, rightBottomColliding, new Vector2(1, 0), world, 0, -.5f, -.5f);
+                    enemyScript.Position = ResetAlignment(enemyScript, rightLine, rightLine, new Vector2(1, 0), world, 0, -.5f, -.5f);
                 }
             }
             else
@@ -418,15 +426,14 @@ public class CollisionManager : MonoBehaviour
                 enemyScript.RightColliding = false;
             }
             // Top colliding...
-            if ((topLeftColliding.collider && topLeftColliding.collider.gameObject.tag != "Enemy") 
-                || (topRightColliding.collider && topRightColliding.collider.gameObject.tag != "Enemy"))
+            if ((topLine.collider && (tag = topLine.collider.gameObject.tag) != "Enemy"))
             {
-                if (!enemyScript.TopColliding)
+                if (!enemyScript.TopColliding && tag != "Player")
                 {
                     Debug.Log("Top Collision");
                     enemyScript.TopColliding = true;
                     enemyScript.StopVerticalMotion();
-                    enemyScript.Position = ResetAlignment(enemyScript, topLeftColliding, topRightColliding, new Vector2(0, 1), world, 0, -.5f, -.5f);
+                    enemyScript.Position = ResetAlignment(enemyScript, topLine, topLine, new Vector2(0, 1), world, 0, -.5f, -.5f);
                 }
             }
             else
@@ -434,6 +441,5 @@ public class CollisionManager : MonoBehaviour
                 enemyScript.TopColliding = false;
             }
         }
-      
     }
 }

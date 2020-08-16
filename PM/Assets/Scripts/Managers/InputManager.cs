@@ -89,10 +89,9 @@ public class InputManager : MonoBehaviour
         {
             player.GetComponent<SpriteRenderer>().color = new Color(255, 255, 255);
         }
-        // Send a message that a bullet is to be fired from the player.
+        // Shoot bullet
         if (_playerScript.PlayerState != PlayerState.HANGING && Input.GetKeyDown(KeyCode.Space))
         {
-            //TODO: Send event to fire bullet.
             _projectileManager.FirePlayerBullet(_playerScript.LoadOut, player.GetComponent<SpriteRenderer>().flipX ? new Vector2(-1, 0) : new Vector2(1, 0));
         }
         return pressed;

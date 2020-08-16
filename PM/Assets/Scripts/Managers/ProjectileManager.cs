@@ -8,11 +8,7 @@ public enum ProjectileType
 }
 public class ProjectileManager : MonoBehaviour
 {
-    private List<GameObject> _playerProjectiles;
-    public List<GameObject> PlayerProjectiles
-    {
-        get { return _playerProjectiles; }
-    }
+    public List<GameObject> PlayerProjectiles { get; private set; }
     private List<GameObject> _enemyProjectiles;
     private float _maxPlayerBullets;
 
@@ -29,7 +25,7 @@ public class ProjectileManager : MonoBehaviour
     void Start()
     {
         _maxPlayerBullets = 15;
-        _playerProjectiles = new List<GameObject>();
+        PlayerProjectiles = new List<GameObject>();
         _enemyProjectiles = new List<GameObject>();
     }
 
@@ -40,16 +36,15 @@ public class ProjectileManager : MonoBehaviour
     }
     public void FirePlayerBullet(ProjectileType type, Vector2 direction)
     {
-        if (_playerProjectiles.Count > _maxPlayerBullets) return;
-
+        if (PlayerProjectiles.Count > _maxPlayerBullets) return;
         switch (type)
         {
             case ProjectileType.PLAYER_RIFLE:
                 {
                     GameObject newProjectile = Instantiate(_rifleBullet, _player.transform.position, Quaternion.identity);
                     newProjectile.GetComponent<Projectile>().Velocity = newProjectile.GetComponent<Projectile>().InitialSpeed * direction;
-                    newProjectile.GetComponent<Projectile>().ID = _playerProjectiles.Count;
-                    _playerProjectiles.Add(newProjectile);
+                    newProjectile.GetComponent<Projectile>().ID = PlayerProjectiles.Count;
+                    PlayerProjectiles.Add(newProjectile);
                     break;
                 }
         }
@@ -57,9 +52,9 @@ public class ProjectileManager : MonoBehaviour
     public void DeleteBulletsPastLifeTime()
     {
         // Check to remove player bullets...
-        for (int i = 0; i < _playerProjectiles.Count; i++)
+        for (int i = 0; i < PlayerProjectiles.Count; i++)
         {
-            if (_playerProjectiles[i].GetComponent<Projectile>().TimeAlive > 3f)
+            if (PlayerProjectiles[i].GetComponent<Projectile>().TimeAlive > 3f)
             {
                 RemovePlayerProjectile(i);
             }
@@ -67,12 +62,12 @@ public class ProjectileManager : MonoBehaviour
     }
     public void RemovePlayerProjectile(int _id)
     {
-        Destroy(_playerProjectiles[_id]);
-        _playerProjectiles.RemoveAt(_id);
+        Destroy(PlayerProjectiles[_id]);
+        PlayerProjectiles.RemoveAt(_id);
         // Decrement the id of all bullets shifted towards the front of the list.
-        for(int i = _id; i < _playerProjectiles.Count; i++)
+        for(int i = _id; i < PlayerProjectiles.Count; i++)
         {
-            _playerProjectiles[i].GetComponent<Projectile>().ID--;
+            PlayerProjectiles[i].GetComponent<Projectile>().ID--;
         }
     }
 
@@ -81,7 +76,7 @@ public class ProjectileManager : MonoBehaviour
         Destroy(_enemyProjectiles[_id]);
         _enemyProjectiles.RemoveAt(_id);
         // Decrement the id of all bullets shifted towards the front of the list.
-        for (int i = _id; i < _playerProjectiles.Count; i++)
+        for (int i = _id; i < PlayerProjectiles.Count; i++)
         {
             _enemyProjectiles[i].GetComponent<Projectile>().ID--;
         }

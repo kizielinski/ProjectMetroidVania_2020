@@ -171,8 +171,8 @@ public class Player : Object
         // Initial bounds of the player
         minX = transform.position.x;
         minY = transform.position.y;
-        maxX = minX + _width;
-        maxY = minY + _height;
+        maxX = minX + Width;
+        maxY = minY + Height;
     }
 
     // Update is called once per frame
@@ -183,14 +183,14 @@ public class Player : Object
         // Update the bounds of the player
         minX = transform.position.x;
         minY = transform.position.y;
-        maxX = minX + _width;
-        maxY = minY + _height;
+        maxX = minX + Width;
+        maxY = minY + Height;
 
         // Position of the four corners of the sprite...
-        _bottomLeft = new Vector3(transform.position.x - _width / 2, transform.position.y - _height / 2);
-        _bottomRight = new Vector3(transform.position.x + _width / 2, transform.position.y - _height / 2);
-        _topRight = new Vector3(transform.position.x + _width / 2, transform.position.y + _height / 2);
-        _topLeft = new Vector3(transform.position.x - _width / 2, transform.position.y + _height / 2);
+        _bottomLeft = new Vector3(transform.position.x - Width / 2, transform.position.y - Height / 2);
+        _bottomRight = new Vector3(transform.position.x + Width / 2, transform.position.y - Height / 2);
+        _topRight = new Vector3(transform.position.x + Width / 2, transform.position.y + Height / 2);
+        _topLeft = new Vector3(transform.position.x - Width / 2, transform.position.y + Height / 2);
 
         // The previous frames speeded.
         float previousSpeed = this.Velocity.magnitude;
