@@ -9,7 +9,6 @@ public class JumpingParasite : Enemy
     {
         base.Start();
         direction = 1f;
-        _jumpForce = 10000;
     }
     // Update is called once per frame
     protected override void Update()
