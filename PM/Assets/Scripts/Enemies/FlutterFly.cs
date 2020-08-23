@@ -46,14 +46,16 @@ public class FlutterFly : Enemy
             // Moving left to right...
             if (movingForwards)
             {
+                // Parametrization
                 xPos = startPos.x + (timer / timeToTravel) * xLength;
             }
             // Movinf right to left...
             else
             {
+                // Parametrization
                 xPos = endPos.x - (timer / timeToTravel) * xLength;
             }
-            // Update position.
+            // Update position using the following parametrization.
             this.transform.position = new Vector2(xPos, a * Mathf.Pow(xPos, 2) + b * xPos + c);
         }
         else if(timer > timeToTravel + coolDownTime)

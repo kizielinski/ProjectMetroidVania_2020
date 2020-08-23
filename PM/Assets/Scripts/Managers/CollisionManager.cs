@@ -65,29 +65,9 @@ public class CollisionManager : MonoBehaviour
         Vector2 _topRight = new Vector3(_playerObj.transform.position.x + _width / 2 + offset, _playerObj.transform.position.y + _height / 2 + offset);
         Vector2 _topLeft = new Vector3(_playerObj.transform.position.x - _width / 2 - offset, _playerObj.transform.position.y + _height / 2 + offset);
 
-        // Debug lines pointing downwards representing collision detection
-        Debug.DrawLine(_bottomLeft + new Vector2(_rayOffSet, 0), _bottomLeft + new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
-        Debug.DrawLine(_bottomRight - new Vector2(_rayOffSet, 0), _bottomRight - new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
-        // Debug lines pointing Upwards representing collision detection
-        Debug.DrawLine(_topLeft + new Vector2(_rayOffSet, 0), _topLeft + new Vector2(_rayOffSet, 0) + new Vector2(0, _lengthOfRay), Color.red);
-        Debug.DrawLine(_topRight - new Vector2(_rayOffSet, 0), _topRight - new Vector2(_rayOffSet, 0) + new Vector2(0, _lengthOfRay), Color.red);
-        // Debug lines pointing left representing collision detection
-        Debug.DrawLine(_bottomLeft + new Vector2(0, _rayOffSet), _bottomLeft + new Vector2(0, _rayOffSet) - new Vector2(_lengthOfRay, 0), Color.red);
-        Debug.DrawLine(_topLeft - new Vector2(0, _rayOffSet), _topLeft - new Vector2(0, _rayOffSet) - new Vector2(_lengthOfRay, 0), Color.red);
-        // Debug lines pointing right representing collision detection
-        Debug.DrawLine(_topRight - new Vector2(0, _rayOffSet), _topRight - new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
-        Debug.DrawLine(_bottomRight + new Vector2(0, _rayOffSet), _bottomRight + new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
+        DrawDebugLines(_bottomLeft, _bottomRight, _topLeft, _topRight, _lengthOfRay, _rayOffSet, _width, _height);
 
-        Debug.DrawLine(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector2(_bottomLeft.x + _width, _bottomLeft.y), Color.green);
-        Debug.DrawLine(_topLeft + new Vector2(_rayOffSet, 0), new Vector2(_topLeft.x + _width, _topLeft.y), Color.green);
-        Debug.DrawLine(_bottomLeft + new Vector2(0, _rayOffSet), new Vector2(_bottomLeft.x, _bottomLeft.y + _height), Color.green);
-        Debug.DrawLine(_bottomRight + new Vector2(0, _rayOffSet), new Vector2(_bottomRight.x, _bottomRight.y + _height), Color.green);
-
-        //Diagonal Wall Grabbing Debug Lines
-        Debug.DrawLine(_topRight - new Vector2(-_rayOffSet, _rayOffSet), _topRight + new Vector2(_lengthOfRay, -_lengthOfRay));
-        Debug.DrawLine(_topLeft - new Vector2(_rayOffSet, _rayOffSet), _topLeft - new Vector2(_lengthOfRay, _lengthOfRay));
-
-
+        // Eight additional colliders that can be utilized for finer details.
         RaycastHit2D topLeftColliding = Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
         RaycastHit2D topRightColliding = Physics2D.Raycast(_topRight - new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
         RaycastHit2D leftTopColliding = Physics2D.Raycast(_topLeft - new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay);
@@ -97,10 +77,11 @@ public class CollisionManager : MonoBehaviour
         RaycastHit2D rightTopColliding = Physics2D.Raycast(_topRight - new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
         RaycastHit2D rightBottomColliding = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
 
+        // Four colliders on each side of the player.
         RaycastHit2D bottomLine = Physics2D.Raycast(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector2(1, 0), _width - (2 * _rayOffSet));
         RaycastHit2D topLine = Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector2(1, 0), _width - (2 * _rayOffSet));
-        RaycastHit2D leftLine = Physics2D.Raycast(_bottomLeft + new Vector2(0, _rayOffSet), new Vector2(0, 1), _height);
-        RaycastHit2D rightLine = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector2(0, 1), _height);
+        RaycastHit2D leftLine = Physics2D.Raycast(_bottomLeft + new Vector2(0, _rayOffSet), new Vector2(0, 1), _topLeft.y - _bottomLeft.y - (2 * _rayOffSet));
+        RaycastHit2D rightLine = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector2(0, 1), _topRight.y - _bottomRight.y - (2 * _rayOffSet));
 
         RaycastHit2D topRightWallGrabCollision = Physics2D.Raycast(_topRight - new Vector2(-_rayOffSet, _rayOffSet), new Vector3(1.2f, -1, 0), _lengthOfRay);
         RaycastHit2D topLeftWallGrabCollision = Physics2D.Raycast(_topLeft - new Vector2(_rayOffSet, _rayOffSet), new Vector3(-1.2f -1, 0), _lengthOfRay);
@@ -138,10 +119,10 @@ public class CollisionManager : MonoBehaviour
                     {
                         _playerScript.BottomColliding = false;
                     }
+
+                    // Left colliding
                     if ((leftLine.collider && (tag = leftLine.collider.gameObject.tag) != "Player"))
                     {
-                        // Colliding with a wall to the left of the player.
-
                         if (!_playerScript.LeftColliding && tag != "Enemy")
                         {
                             Debug.Log("Left Collision");
@@ -155,9 +136,10 @@ public class CollisionManager : MonoBehaviour
                     {
                         _playerScript.LeftColliding = false;
                     }
+
+                    // Right colliding
                     if (rightLine.collider && (tag = rightLine.collider.gameObject.tag) != "Player")
                     {
-                        // Colliding with a wal to the right of the player.
                         if (!_playerScript.RightColliding && tag != "Enemy")
                         {
                             Debug.Log("Right Collision");
@@ -171,6 +153,7 @@ public class CollisionManager : MonoBehaviour
                     {
                         _playerScript.RightColliding = false;
                     }
+
                     // Colliding with ceiling.
                     if ((topLine.collider && (tag = topLine.collider.gameObject.tag) != "Player"))
                     { 
@@ -187,6 +170,8 @@ public class CollisionManager : MonoBehaviour
                     {
                         _playerScript.TopColliding = false;
                     }
+
+                    // Colliding with a ledge...
                     if ((topLeftWallGrabCollision.collider || 
                         topRightWallGrabCollision.collider) && 
                         (!_playerScript.TopColliding && !_playerScript.BottomColliding))
@@ -215,6 +200,7 @@ public class CollisionManager : MonoBehaviour
                     {
                         _playerScript.BottomColliding = false;
                     }
+
                     // Colliding with a wall to the left of the player or prevent the player from walking off a ledge to the left.
                     if (leftTopColliding.collider || leftBottomColliding.collider || !bottomLeftColliding.collider)
                     {
@@ -229,6 +215,7 @@ public class CollisionManager : MonoBehaviour
                     {
                         _playerScript.LeftColliding = false;
                     }
+
                     // Colliding with a wall to the right of the player or prevent the player from walking off a ledge to the right.
                     if ((rightTopColliding.collider || rightBottomColliding.collider) || !bottomRightColliding.collider)
                     {
@@ -243,6 +230,7 @@ public class CollisionManager : MonoBehaviour
                     {
                         _playerScript.RightColliding = false;
                     }
+
                     break;
                 }
         }
@@ -261,15 +249,17 @@ public class CollisionManager : MonoBehaviour
     {
         Vector3 tileWorldPos = incomingRaycast.collider != null ? incomingRaycast.point : alternateRay.point;
         Vector3Int cellGridPos;
-        // Reset lateral displacement.
+
+        // Reset vertical displacement.
         if (rayCastDirection.y != 0)
         {
             tileWorldPos = new Vector2(tileWorldPos.x, tileWorldPos.y + (rayCastDirection.y > 0 ? _playerScript.ColliderOffSet : -_playerScript.ColliderOffSet));
             cellGridPos = tileMap.WorldToCell(tileWorldPos);
-            tileWorldPos = tileMap.CellToWorld(cellGridPos);
+            tileWorldPos = tileMap.CellToWorld(cellGridPos);  
             return new Vector2(script.Position.x, tileWorldPos.y + tileOffset + (script.Height * heightOffset) + (_playerScript.LengthOfRay * rayOffset));
         }
-        // Reset longitudinal displacement
+
+        // Reset horizontal displacement
         tileWorldPos = new Vector2(tileWorldPos.x + (rayCastDirection.x > 0 ? _playerScript.ColliderOffSet : -_playerScript.ColliderOffSet), tileWorldPos.y);
         cellGridPos = tileMap.WorldToCell(tileWorldPos);
         tileWorldPos = tileMap.CellToWorld(cellGridPos);
@@ -339,29 +329,9 @@ public class CollisionManager : MonoBehaviour
             Vector2 _topRight = new Vector3(enemy.transform.position.x + _width / 2 + offset, enemy.transform.position.y + _height / 2 + offset);
             Vector2 _topLeft = new Vector3(enemy.transform.position.x - _width / 2 - offset, enemy.transform.position.y + _height / 2 + offset);
 
-            // Debug lines pointing downwards representing collision detection
-            Debug.DrawLine(_bottomLeft + new Vector2(_rayOffSet, 0), _bottomLeft + new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
-            Debug.DrawLine(_bottomRight - new Vector2(_rayOffSet, 0), _bottomRight - new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
-            // Debug lines pointing Upwards representing collision detection
-            Debug.DrawLine(_topLeft + new Vector2(_rayOffSet, 0), _topLeft + new Vector2(_rayOffSet, 0) + new Vector2(0, _lengthOfRay), Color.red);
-            Debug.DrawLine(_topRight - new Vector2(_rayOffSet, 0), _topRight - new Vector2(_rayOffSet, 0) + new Vector2(0, _lengthOfRay), Color.red);
-            // Debug lines pointing left representing collision detection
-            Debug.DrawLine(_bottomLeft + new Vector2(0, _rayOffSet), _bottomLeft + new Vector2(0, _rayOffSet) - new Vector2(_lengthOfRay, 0), Color.red);
-            Debug.DrawLine(_topLeft - new Vector2(0, _rayOffSet), _topLeft - new Vector2(0, _rayOffSet) - new Vector2(_lengthOfRay, 0), Color.red);
-            // Debug lines pointing right representing collision detection
-            Debug.DrawLine(_topRight - new Vector2(0, _rayOffSet), _topRight - new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
-            Debug.DrawLine(_bottomRight + new Vector2(0, _rayOffSet), _bottomRight + new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
+            DrawDebugLines(_bottomLeft, _bottomRight, _topLeft, _topRight, _lengthOfRay, _rayOffSet, _width, _height);
 
-            Debug.DrawLine(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector2(_bottomLeft.x + _width, _bottomLeft.y), Color.green);
-            Debug.DrawLine(_topLeft + new Vector2(_rayOffSet, 0), new Vector2(_topLeft.x + _width, _topLeft.y), Color.green);
-            Debug.DrawLine(_bottomLeft + new Vector2(0, _rayOffSet), new Vector2(_bottomLeft.x, _bottomLeft.y + _height), Color.green);
-            Debug.DrawLine(_bottomRight + new Vector2(0, _rayOffSet), new Vector2(_bottomRight.x, _bottomRight.y + _height), Color.green);
-
-            //Diagonal Wall Grabbing Debug Lines
-            Debug.DrawLine(_topRight - new Vector2(-_rayOffSet, _rayOffSet), _topRight + new Vector2(_lengthOfRay, -_lengthOfRay));
-            Debug.DrawLine(_topLeft - new Vector2(_rayOffSet, _rayOffSet), _topLeft - new Vector2(_lengthOfRay, _lengthOfRay));
-
-
+            // Eight colliders can be utilized for finer details.
             RaycastHit2D topLeftColliding = Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
             RaycastHit2D topRightColliding = Physics2D.Raycast(_topRight - new Vector2(_rayOffSet, 0), new Vector3(0, 1, 0), _lengthOfRay);
             RaycastHit2D leftTopColliding = Physics2D.Raycast(_topLeft - new Vector2(0, _rayOffSet), new Vector3(-1, 0, 0), _lengthOfRay);
@@ -371,13 +341,11 @@ public class CollisionManager : MonoBehaviour
             RaycastHit2D rightTopColliding = Physics2D.Raycast(_topRight - new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
             RaycastHit2D rightBottomColliding = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector3(1, 0, 0), _lengthOfRay);
 
+            // Four colliders on each side of the enemy.
             RaycastHit2D bottomLine = Physics2D.Raycast(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector2(1, 0), _width - (2 * _rayOffSet));
             RaycastHit2D topLine = Physics2D.Raycast(_topLeft + new Vector2(_rayOffSet, 0), new Vector2(1, 0), _width - (2 * _rayOffSet));
-            RaycastHit2D leftLine = Physics2D.Raycast(_bottomLeft + new Vector2(0, _rayOffSet), new Vector2(0, 1), _height);
-            RaycastHit2D rightLine = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector2(0, 1), _height);
-
-
-            //if (bottomLeftColliding ^ bottomRightColliding) enemyScript.ApplyForce(new Vector2(0, 100));
+            RaycastHit2D leftLine = Physics2D.Raycast(_bottomLeft + new Vector2(0, _rayOffSet), new Vector2(0, 1), _topLeft.y - _bottomLeft.y - (2 * _rayOffSet));
+            RaycastHit2D rightLine = Physics2D.Raycast(_bottomRight + new Vector2(0, _rayOffSet), new Vector2(0, 1), _topRight.y - _bottomRight.y - (2 * _rayOffSet));
 
             string tag;
             // Bottom colliding...
@@ -395,6 +363,7 @@ public class CollisionManager : MonoBehaviour
             {
                 enemyScript.BottomColliding = false;
             }
+
             // Left colliding...
             if ((leftLine.collider && (tag = leftLine.collider.gameObject.tag) != "Enemy"))
             {
@@ -409,6 +378,7 @@ public class CollisionManager : MonoBehaviour
             {
                 enemyScript.LeftColliding = false;
             }
+
             // Right colliding...
             if ((rightLine.collider && (tag = rightLine.collider.gameObject.tag) != "Enemy"))
             {
@@ -425,6 +395,7 @@ public class CollisionManager : MonoBehaviour
             {
                 enemyScript.RightColliding = false;
             }
+
             // Top colliding...
             if ((topLine.collider && (tag = topLine.collider.gameObject.tag) != "Enemy"))
             {
@@ -441,5 +412,42 @@ public class CollisionManager : MonoBehaviour
                 enemyScript.TopColliding = false;
             }
         }
+    }
+    
+    /// <summary>
+    /// Helper method to draw all neccessary debug lines for an object.
+    /// </summary>
+    /// <param name="_bottomLeft"></param>
+    /// <param name="_bottomRight"></param>
+    /// <param name="_topLeft"></param>
+    /// <param name="_topRight"></param>
+    /// <param name="_lengthOfRay"></param>
+    /// <param name="_rayOffSet"></param>
+    /// <param name="_width"></param>
+    /// <param name="_height"></param>
+    public void DrawDebugLines(Vector2 _bottomLeft, Vector2 _bottomRight, Vector2 _topLeft, Vector2 _topRight,
+        float _lengthOfRay, float _rayOffSet, float _width, float _height)
+    {
+        // Debug lines pointing downwards representing collision detection
+        Debug.DrawLine(_bottomLeft + new Vector2(_rayOffSet, 0), _bottomLeft + new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
+        Debug.DrawLine(_bottomRight - new Vector2(_rayOffSet, 0), _bottomRight - new Vector2(_rayOffSet, 0) - new Vector2(0, _lengthOfRay), Color.red);
+        // Debug lines pointing Upwards representing collision detection
+        Debug.DrawLine(_topLeft + new Vector2(_rayOffSet, 0), _topLeft + new Vector2(_rayOffSet, 0) + new Vector2(0, _lengthOfRay), Color.red);
+        Debug.DrawLine(_topRight - new Vector2(_rayOffSet, 0), _topRight - new Vector2(_rayOffSet, 0) + new Vector2(0, _lengthOfRay), Color.red);
+        // Debug lines pointing left representing collision detection
+        Debug.DrawLine(_bottomLeft + new Vector2(0, _rayOffSet), _bottomLeft + new Vector2(0, _rayOffSet) - new Vector2(_lengthOfRay, 0), Color.red);
+        Debug.DrawLine(_topLeft - new Vector2(0, _rayOffSet), _topLeft - new Vector2(0, _rayOffSet) - new Vector2(_lengthOfRay, 0), Color.red);
+        // Debug lines pointing right representing collision detection
+        Debug.DrawLine(_topRight - new Vector2(0, _rayOffSet), _topRight - new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
+        Debug.DrawLine(_bottomRight + new Vector2(0, _rayOffSet), _bottomRight + new Vector2(0, _rayOffSet) + new Vector2(_lengthOfRay, 0), Color.red);
+
+        Debug.DrawLine(_bottomLeft + new Vector2(_rayOffSet, 0), new Vector2(_bottomLeft.x + _width, _bottomLeft.y), Color.green);
+        Debug.DrawLine(_topLeft + new Vector2(_rayOffSet, 0), new Vector2(_topLeft.x + _width, _topLeft.y), Color.green);
+        Debug.DrawLine(_bottomLeft + new Vector2(0, _rayOffSet), new Vector2(_bottomLeft.x, _bottomLeft.y + _height), Color.green);
+        Debug.DrawLine(_bottomRight + new Vector2(0, _rayOffSet), new Vector2(_bottomRight.x, _bottomRight.y + _height), Color.green);
+
+        //Diagonal Wall Grabbing Debug Lines
+        Debug.DrawLine(_topRight - new Vector2(-_rayOffSet, _rayOffSet), _topRight + new Vector2(_lengthOfRay, -_lengthOfRay));
+        Debug.DrawLine(_topLeft - new Vector2(_rayOffSet, _rayOffSet), _topLeft - new Vector2(_lengthOfRay, _lengthOfRay));
     }
 }
