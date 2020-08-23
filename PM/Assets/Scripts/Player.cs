@@ -290,7 +290,6 @@ public class Player : Object
                 }
             case PlayerState.JUMPING:
                 {
-                    Debug.LogWarning(_hangingCollision);
                     if (_hangingCollision)
                     {
                         _playerState = PlayerState.HANGING;
