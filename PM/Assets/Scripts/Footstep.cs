@@ -13,12 +13,6 @@ public class Footstep : MonoBehaviour
     [SerializeField]
     private Player player;
 
-    [SerializeField]
-    private AudioSource source;
-
-    [SerializeField]
-    private List<AudioClip> footstepSounds;
-
     /// <summary>
     /// The funciton used to play sound effects on an object's animator
     /// </summary>
@@ -26,18 +20,7 @@ public class Footstep : MonoBehaviour
     {
         if (player.PlayerState == PlayerState.WALKING)
         {
-            AudioClip stepSound = GetRandomClip();
-            source.PlayOneShot(stepSound);
+            FMODUnity.RuntimeManager.PlayOneShot("event:/Footsteps/Human_Footstep");
         }
-
-    }
-
-    /// <summary>
-    /// Gets a random audioclip from an array, then returns it
-    /// </summary>
-    /// <returns> A random audioclip frmo an array </returns>
-    private AudioClip GetRandomClip()
-    {
-        return footstepSounds[Random.Range(0, footstepSounds.Count)];
     }
 }
